@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>The habit calendar · Halden & Co.</title><link rel="stylesheet" href="../shared/halden.css">
+<style>
+.claim{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;align-items:center;background:var(--card);border-radius:8px;overflow:hidden}
+.claim img{width:100%;height:100%;object-fit:cover;aspect-ratio:16/10}
+.claim blockquote{margin:0;padding:12px 16px 12px 0;font:400 19px/1.45 var(--fb)}
+.claim cite{display:block;font:700 11px var(--fb);letter-spacing:.12em;color:var(--muted);margin-top:6px;font-style:normal;text-transform:uppercase}
+@media (max-width:560px){.claim{grid-template-columns:1fr}.claim blockquote{padding:0 16px 14px}}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 14px;font:600 13.5px var(--fm);cursor:pointer;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--teal);color:#00141F;border-color:var(--teal)}
+.chip.wk[aria-pressed="true"]{background:var(--amber);border-color:var(--amber)}
+.cal{background:rgba(0,0,0,.22);border-radius:8px;padding:12px}
+.dow,.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.dow span{font:700 11px var(--fb);letter-spacing:.1em;color:var(--faint);text-align:center;padding-bottom:4px}
+.day{min-height:64px;border-radius:6px;background:var(--card);padding:6px;display:flex;flex-direction:column;gap:4px;position:relative;transition:opacity .2s,box-shadow .2s}
+.day .n{font:600 11px var(--fm);color:var(--muted)}
+.day .dots{display:flex;flex-wrap:wrap;gap:3px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--teal-hi)}
+.dot.other{background:#C08BFF}
+.day.out{opacity:.25}
+.day.night{box-shadow:inset 0 0 0 2px var(--red)}
+.day.night::after{content:"the night";position:absolute;right:6px;bottom:4px;font:700 9.5px var(--fb);color:#FF8A8F;letter-spacing:.06em}
+.day.arrest::after{content:"arrest";position:absolute;right:6px;bottom:4px;font:700 9.5px var(--fb);color:var(--muted)}
+.cal.wk .day:not(.wk){opacity:.18}.cal.wk .day.wk{box-shadow:inset 0 0 0 2px var(--amber)}
+.stat{display:flex;gap:20px;flex-wrap:wrap;align-items:baseline}
+.stat b{font:800 32px var(--fd);color:var(--teal-hi)}.stat span{color:var(--muted)}
+.legend{display:flex;gap:16px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+</style></head><body><div class="wrap">
+<div class="claim"><img src="../frames/marsh-interview.jpg" alt="Leon Marsh in the interview room"><blockquote>"I don't even know the guy. Met him this morning."<cite>Leon Marsh · interview, Wed 4 Mar, 14:15</cite></blockquote></div>
+<div><div class="kicker">Skill 3 · the pattern</div><h1 class="title">If they met this morning, his phone shouldn't know Vance's car.</h1>
+<p class="task">Every dot is one time Marsh's phone connected to a car stereo, in the 30 days before the break-in.</p></div>
+<div class="chips" role="group" aria-label="Filter"><span style="font:600 13px var(--fb);color:var(--muted)">device</span>
+<button class="chip" type="button" id="f-is" aria-pressed="true">is 'CAR AUDIO 7731'</button><button class="chip" type="button" id="f-like" aria-pressed="false">starts with 'CAR AUDIO'</button>
+<button class="chip wk" type="button" id="f-wk" aria-pressed="false">only the last 7 days</button></div>
+<div class="stat" aria-live="polite"><b id="s-n">41</b><span id="s-t">connections on 19 days</span></div>
+<div class="cal" id="cal"><div class="dow"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div><div class="grid" id="grid"></div></div>
+<div class="legend"><span><i style="background:var(--teal-hi)"></i>CAR AUDIO 7731 (Vance's sedan)</span><span id="lg2" hidden><i style="background:#C08BFF"></i>CAR AUDIO 2290 (another car)</span></div>
+<div class="elena" id="elena"><span class="av" aria-hidden="true"></span><div><small>ELENA</small><p>Forty-one times in a month. Now try the looser filter.</p></div></div>
+</div>
+<script src="../shared/halden.js"></script>
+<script>
+const D={"2026-02-03": {"CAR AUDIO 7731": 2}, "2026-02-04": {"CAR AUDIO 7731": 2}, "2026-02-06": {"CAR AUDIO 7731": 3}, "2026-02-08": {"CAR AUDIO 2290": 1}, "2026-02-09": {"CAR AUDIO 7731": 2}, "2026-02-10": {"CAR AUDIO 7731": 2}, "2026-02-12": {"CAR AUDIO 7731": 3}, "2026-02-13": {"CAR AUDIO 7731": 2}, "2026-02-15": {"CAR AUDIO 2290": 1}, "2026-02-16": {"CAR AUDIO 7731": 2}, "2026-02-17": {"CAR AUDIO 7731": 2}, "2026-02-19": {"CAR AUDIO 7731": 3}, "2026-02-20": {"CAR AUDIO 7731": 2}, "2026-02-22": {"CAR AUDIO 2290": 1}, "2026-02-23": {"CAR AUDIO 7731": 2}, "2026-02-24": {"CAR AUDIO 7731": 2}, "2026-02-26": {"CAR AUDIO 7731": 3}, "2026-02-27": {"CAR AUDIO 7731": 2}, "2026-02-28": {"CAR AUDIO 7731": 2}, "2026-03-01": {"CAR AUDIO 7731": 2}, "2026-03-02": {"CAR AUDIO 7731": 2}, "2026-03-03": {"CAR AUDIO 7731": 1}, "2026-03-04": {"CAR AUDIO 2290": 1}};
+let like=false, wk=false, tried=false, done=false;
+const grid=document.getElementById("grid");
+function iso(d){ return d.toISOString().slice(0,10); }
+const start=new Date(Date.UTC(2026,1,2)); // Mon 2 Feb
+for(let i=0;i<35;i++){ const d=new Date(start.getTime()+i*864e5), k=iso(d); const c=document.createElement("div"); c.className="day"; c.dataset.k=k;
+  if(k>"2026-03-03") c.classList.add("out"); if(k==="2026-03-03") c.classList.add("night"); if(k==="2026-03-04"){ c.classList.add("arrest"); c.classList.remove("out"); c.style.opacity=".5"; }
+  if(k>="2026-02-25"&&k<="2026-03-03") c.classList.add("wk");
+  c.innerHTML='<span class="n">'+d.getUTCDate()+(d.getUTCDate()===1||i===0?' '+(d.getUTCMonth()===1?'Feb':'Mar'):'')+'</span><span class="dots"></span>'; grid.append(c); }
+function render(){
+  let n=0, days=0;
+  grid.querySelectorAll(".day").forEach(c=>{ const k=c.dataset.k, v=D[k]||{}, dots=c.querySelector(".dots"); dots.innerHTML=""; let any=false;
+    if(k>"2026-03-03") return;
+    const a=v["CAR AUDIO 7731"]||0, b=like?(v["CAR AUDIO 2290"]||0):0;
+    for(let i=0;i<a;i++) dots.insertAdjacentHTML("beforeend",'<i class="dot"></i>'); for(let i=0;i<b;i++) dots.insertAdjacentHTML("beforeend",'<i class="dot other"></i>');
+    c.setAttribute("aria-label",k+": "+(a+b)+" connections");
+    if(!wk||(k>="2026-02-25")){ n+=a+b; if(a+b) days++; } });
+  document.getElementById("cal").classList.toggle("wk",wk);
+  document.getElementById("s-n").textContent=n; document.getElementById("s-t").textContent="connections on "+days+" days"+(wk?" in the last week":"");
+  document.getElementById("lg2").hidden=!like;
+  document.getElementById("f-is").setAttribute("aria-pressed",!like); document.getElementById("f-like").setAttribute("aria-pressed",like); document.getElementById("f-wk").setAttribute("aria-pressed",wk);
+  const E=document.getElementById("elena");
+  if(like) HALDEN.say(E,"Forty-four? There's a second car in here. Three Sundays in February. Not today: stick to the question, Vance's car.");
+  else if(wk){ HALDEN.say(E,"Forty-one in a month. Twelve in the last week alone. That's a phone that knows that car well. What that means for Marsh is Hale's argument. Ours is the numbers."); if(!done){ done=true; HALDEN.complete("halden-calendar"); } }
+  else if(tried) HALDEN.say(E,"Back to Vance's car. Now, could the pattern be old? Look at just the last week.");
+}
+document.getElementById("f-is").onclick=()=>{ like=false; render(); };
+document.getElementById("f-like").onclick=()=>{ like=true; tried=true; wk=false; render(); };
+document.getElementById("f-wk").onclick=()=>{ wk=!wk; if(wk) like=false; render(); };
+render();
+</script></body></html>

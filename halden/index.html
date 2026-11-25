@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>Halden &amp; Co. interactions</title><link rel="stylesheet" href="shared/halden.css">
+<style>.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.it{display:flex;flex-direction:column;background:var(--card);border-radius:8px;overflow:hidden;text-decoration:none;color:var(--ink);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.it img{width:100%;aspect-ratio:16/9;object-fit:cover}.it div{padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.it b{font:800 16px var(--fd)}.it small{font:700 10.5px var(--fm);letter-spacing:.1em;color:var(--amber)}.it span{font-size:14px;color:var(--muted)}
+.it:hover b{color:var(--teal-hi)}</style></head><body><div class="wrap">
+<div><div class="kicker">YO-FOR · The Halden &amp; Co. Break-in · hosted interactions v1</div><h1 class="title">The nine interactions, in course order</h1>
+<p class="task">Each one is a standalone page: this is exactly what Rise's Embed block will show. The five Sextant steps share one case score in your browser.</p></div>
+<div class="list" id="l"></div></div>
+<script>
+const I=[["board","Part 1","The evidence board","Open eight pins; red strings lead to the question.","marsh-booking"],
+["clocks","Part 2","Two clocks","Drag until the phone's number reads 794289494.","elena-phone"],
+["sextant-showme","Part 2","Sextant · Show me","Guided: find the car, fix the time, narrow to the night.","elena-talk"],
+["sextant-yourturn","Part 2","Sextant · Your turn","Scored, 3 pts: when did the phone reach the motel?","motel"],
+["sextant-merge","Part 3","Sextant · Merge (the trap)","0 rows, then fix the line by hand.","hale"],
+["five-hours","Part 3","See the five hours","Drag the car bar over the break-in, then answer why 0.","sidedoor"],
+["sextant-count","Part 4","Sextant · Count","Scored, 3 pts: 41 on 19 days, then 12 on 6.","marsh-interview"],
+["calendar","Part 4","The habit calendar","A month of dots against 'Met him this morning'.","sedan"],
+["sextant-conclude","Part 4","Sextant · Conclude","Scored, 4 pts: Elena's report form and the case score.","lab-bags"]];
+const l=document.getElementById("l");
+I.forEach(([p,pt,t,d,img])=>{ const a=document.createElement("a"); a.className="it"; a.href=p+"/index.html"; a.innerHTML='<img alt="" src="frames/'+img+'.jpg"><div><small></small><b></b><span></span></div>'; a.querySelector("small").textContent=pt; a.querySelector("b").textContent=t; a.querySelector("span").textContent=d; l.append(a); });
+</script></body></html>

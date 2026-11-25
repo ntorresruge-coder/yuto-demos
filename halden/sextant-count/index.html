@@ -1,0 +1,1314 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<style>@font-face{font-family:"Montserrat";src:url(fonts/Montserrat.woff2) format("woff2");font-weight:100 900;font-display:block}@font-face{font-family:"Roboto";src:url(fonts/Roboto.woff2) format("woff2");font-weight:100 900;font-display:block}@font-face{font-family:"Roboto Mono";src:url(fonts/RobotoMono.woff2) format("woff2");font-weight:100 900;font-display:block}
+#solo-wrap{padding:24px;background:#082836;min-height:100vh;box-sizing:border-box}
+html,body{background:#082836!important;margin:0!important;overflow-x:hidden}</style><title>Halden &amp; Co. Prototype</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: Rise 360 course chrome (sidebar with % complete, sticky lesson bar, "Lesson N of 6" headers, CONTINUE bars) dressed in the video's palette:
+   navy night, slate lab with teal screen glow, red only at the trap and hook, one amber spotlight on the finding. Each block paints a gradient that ends in the next block's color. */
+:root{
+  --navy:#001E30; --slate:#082836; --deep:#0A3A3E; --warm:#0E2530; --redbase:#1E0E19; --red:#EF5A5F; --amber:#FAC000; --teal:#00A398; --teal-hi:#3FD1C4; --light:#F2F2F2;
+  --side:#00131F; --side-2:#02202F;
+  --ink:#E8EEF2; --muted:#9DB0BC; --faint:#6F8794; --line:rgba(255,255,255,.12); --card:#0C2C3B; --card-2:#0F3546; --ph-ink:#8FA6B2;
+  --accent:#00A398; --accent-ink:#00141F; --focus:#3FD1C4;
+  --ok:#6FD39C; --ok-t:rgba(111,211,156,.14); --bad:#FF8A8F; --bad-t:rgba(239,90,95,.16);
+  --watch:#C9B0FF; --watch-t:rgba(135,86,210,.28); --story:#9CC6F5; --story-t:rgba(58,123,213,.25); --explore:#B7CBD6; --explore-t:rgba(126,153,168,.22);
+  --check:#FFD566; --check-t:rgba(250,192,0,.18); --sextant:#5FE3D6; --sextant-t:rgba(0,163,152,.22); --nav:#C3CCD2; --nav-t:rgba(185,193,199,.16);
+  --new:#D2B4FF; --new-t:rgba(135,86,210,.32); --chg:#FFC266; --chg-t:rgba(250,160,0,.22);
+  --sx-bg:#04161F; --sx-panel:#0A2734; --sx-line:#1C4456; --sx-ink:#DDE8EC; --sx-muted:#8FA7B2; --sx-red:#EF5A5F;
+  --k1:#58B4FF; --k2:#F5A524; --k3:#3FD1C4; --k4:#C08BFF; --k5:#FF8A94;
+  --f-display:"Montserrat",system-ui,sans-serif; --f-body:"Roboto",system-ui,sans-serif; --f-mono:"Roboto Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--navy);color:var(--ink);font:17px/1.6 var(--f-body)}
+button{font:inherit;color:inherit}
+a{color:var(--teal-hi)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+p{margin:0}
+.app{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:100vh;transition:grid-template-columns .25s}
+body.nav-closed .app{grid-template-columns:0 minmax(0,1fr)}
+body.nav-closed .side{visibility:hidden}
+/* ----- Rise sidebar ----- */
+.side{background:var(--side);position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,.06)}
+.side-cover{position:relative;height:150px;display:flex;align-items:flex-end;padding:16px 20px;text-decoration:none;color:#fff;flex:0 0 auto;
+  background:radial-gradient(60% 70% at 78% 30%,rgba(250,192,0,.35),transparent 60%),radial-gradient(50% 60% at 15% 80%,rgba(0,163,152,.25),transparent 70%),linear-gradient(160deg,#0B3047,#001827)}
+.side-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,19,31,.85),transparent 70%)}
+.side-cover b{position:relative;z-index:1;font:800 19px/1.2 var(--f-display)}
+.side-prog{padding:14px 20px 16px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid rgba(255,255,255,.06)}
+.side-prog span{font:700 11px/1 var(--f-body);letter-spacing:.14em;color:var(--muted)}
+.prog{height:4px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden}.prog i{display:block;height:100%;background:var(--teal);width:0;transition:width .4s}
+.menu{list-style:none;margin:0;padding:8px 0;display:flex;flex-direction:column}
+.menu .sec{font:700 11px/1 var(--f-body);letter-spacing:.14em;color:var(--faint);padding:16px 20px 8px}
+.menu a{display:flex;gap:12px;align-items:center;padding:11px 20px;color:var(--ink);text-decoration:none;font-size:14.5px;line-height:1.35;border-left:3px solid transparent}
+.menu a:hover{background:rgba(255,255,255,.04)}
+.menu li.cur a{background:rgba(0,163,152,.12);border-left-color:var(--teal);font-weight:700}
+.menu .ico{flex:0 0 14px;height:10px;border-top:2px solid var(--faint);border-bottom:2px solid var(--faint);position:relative}
+.menu .ico::after{content:"";position:absolute;left:0;right:0;top:2px;border-top:2px solid var(--faint)}
+.menu .t{flex:1;display:flex;flex-direction:column;min-width:0}
+.menu .t small{color:var(--faint);font:500 11.5px var(--f-mono)}
+.ring{flex:0 0 18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.25);display:grid;place-items:center;font-size:10px;font-weight:700}
+li.cur .ring{border-color:var(--teal);background:conic-gradient(var(--teal) 0 50%,transparent 50%)}
+li.done .ring{border-color:var(--teal);background:var(--teal);color:var(--accent-ink)}
+.review-tools{margin-top:auto;border-top:1px solid rgba(255,255,255,.08);padding:12px 20px 20px;font-size:13px;display:flex;flex-direction:column;gap:10px;background:var(--side-2)}
+.review-tools summary{cursor:pointer;font:700 11px/1.4 var(--f-body);letter-spacing:.12em;color:var(--amber)}
+.review-tools[open] summary{margin-bottom:6px}
+.rt-body{display:flex;flex-direction:column;gap:10px}
+.scorebox{border:1px solid var(--line);border-radius:8px;padding:8px 12px;display:flex;flex-direction:column;gap:2px}
+.scorebox b{font:700 20px var(--f-mono);color:var(--amber)}
+.switch{display:flex;gap:8px;align-items:center;cursor:pointer}
+.switch input{width:16px;height:16px;accent-color:var(--teal)}
+.rt-note{color:var(--muted);font-size:12px}
+.legend{display:flex;flex-wrap:wrap;gap:4px}
+/* ----- top bar ----- */
+main{min-width:0;position:relative}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--side)}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:14px;height:52px;background:rgba(0,19,31,.92);border-bottom:1px solid rgba(255,255,255,.06);padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.hamb{width:36px;height:36px;border:0;background:none;cursor:pointer;display:grid;place-items:center;border-radius:6px}
+.hamb:hover{background:rgba(255,255,255,.06)}
+.hamb i{display:block;width:18px;height:12px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);position:relative}
+.hamb i::after{content:"";position:absolute;left:0;right:0;top:3px;border-top:2px solid var(--ink)}
+.topbar .tt{font:600 13px/1.2 var(--f-body);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .tt b{color:var(--ink)}
+.tb-prog{position:absolute;left:0;bottom:-1px;height:3px;background:var(--teal);width:0}
+/* ----- lessons ----- */
+.lesson{display:none}
+.lesson.on{display:block}
+.lhead{background:var(--navy);padding-block:64px 36px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.lhead .in{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.lhead .k{font:500 15px/1.3 var(--f-body);font-style:italic;color:var(--muted)}
+.lhead h1{font-size:clamp(32px,5vw,48px);font-weight:900;line-height:1.08;letter-spacing:-.01em}
+.lhead h1::after{content:"";display:block;width:64px;height:4px;background:var(--amber);margin-top:22px;border-radius:2px}
+.blk{position:relative;padding-block:48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:var(--slate)}
+.blk::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .8s;background:radial-gradient(55% 55% at 50% 55%,rgba(239,90,95,.32),transparent 70%)}
+.blk.flash-red::after,.blk:has(.sx-res.red)::after{opacity:1}
+.blk>.in{position:relative;z-index:1;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.blk.wide>.in{max-width:960px}
+.blk.gated{display:none}
+body:not(.learner) .blk.is-new{box-shadow:inset 4px 0 0 var(--new)}
+body:not(.learner) .blk.is-chg{box-shadow:inset 4px 0 0 var(--chg)}
+.bg-light{--ink:#262626;--muted:#5A6470;--faint:#7D868E;--line:#D9DDE2;--card:#FFFFFF;--card-2:#F7F8F9;--ph-ink:#5A6470;color:var(--ink)}
+/* ----- review annotations ----- */
+.ann{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:500 12px/1.4 var(--f-body);color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font:600 11.5px/1.5 var(--f-body);white-space:nowrap}
+.c-watch{background:var(--watch-t);color:var(--watch)}.c-story{background:var(--story-t);color:var(--story)}.c-explore{background:var(--explore-t);color:var(--explore)}
+.c-check{background:var(--check-t);color:var(--check)}.c-sextant{background:var(--sextant-t);color:var(--sextant)}.c-nav{background:var(--nav-t);color:var(--nav)}
+.t-new{background:var(--new-t);color:var(--new)}.t-chg{background:var(--chg-t);color:var(--chg)}
+.bg-light .pill{filter:brightness(.55) saturate(1.4)}
+.ann .id{font:700 12px var(--f-mono);color:var(--ink)}
+.ann .clock{font:500 12px var(--f-mono)}
+.ann .nbtn{margin-left:auto;border:1px solid var(--line);background:transparent;border-radius:6px;padding:2px 10px;font-size:12px;cursor:pointer}
+.ann .nbtn.has{border-color:var(--amber);color:var(--amber);font-weight:600}
+.why{font-size:13.5px;color:var(--muted);font-style:italic;border-left:2px solid var(--amber);padding-left:10px}
+.notebox{display:flex;flex-direction:column;gap:4px}
+.notebox textarea{width:100%;min-height:60px;border:1px solid var(--line);border-radius:8px;background:rgba(0,0,0,.25);color:var(--ink);font:14px/1.45 var(--f-body);padding:8px 10px;resize:vertical}
+.bg-light .notebox textarea{background:#fff}
+.notebox small{color:var(--muted);font:500 11.5px var(--f-mono)}
+body.learner .ann,body.learner .why,body.learner .notebox{display:none!important}
+/* ----- image placeholders, on palette ----- */
+.ph{border-radius:6px;display:flex;align-items:flex-end;justify-content:flex-start;text-align:left;padding:12px;font:500 12px/1.4 var(--f-mono);color:var(--ph-ink);position:relative;overflow:hidden;min-height:150px;
+  background:radial-gradient(45% 55% at 72% 32%,rgba(250,192,0,.30),transparent 70%),radial-gradient(40% 50% at 20% 75%,rgba(0,163,152,.18),transparent 70%),linear-gradient(170deg,#123B52,#06192A)}
+.ph::before{content:"IMAGE";position:absolute;top:10px;left:12px;font:700 10px var(--f-mono);letter-spacing:.14em;color:rgba(255,255,255,.45)}
+.ph span{position:relative;background:rgba(0,0,0,.35);padding:3px 7px;border-radius:4px;color:#C9D6DD}
+.ph.wide{aspect-ratio:16/9;max-width:100%}
+.ph.round{width:96px;height:96px;min-height:0;border-radius:50%;padding:0;flex:0 0 96px;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+.ph.round::before{display:none}
+.ph.round span{background:none;font-size:10px;letter-spacing:.1em}
+/* ----- Rise blocks ----- */
+.eyebrow{font:700 12px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+.lead{font-size:20px;line-height:1.55}
+h2.bh{font-size:28px;font-weight:800;line-height:1.2}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:4px;background:var(--teal);color:var(--accent-ink);padding:12px 22px;font:700 14px var(--f-body);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;text-decoration:none}
+.btn[disabled]{opacity:.35;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--line)}
+/* quote (Rise Quote A: avatar on top, centered) */
+.quote{display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px}
+.quote blockquote{margin:0;font:400 23px/1.55 var(--f-body);max-width:640px}
+.quote cite{display:block;font:700 13px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:14px}
+.quote cite::before{content:"";display:block;width:32px;height:2px;background:var(--amber);margin:0 auto 12px}
+/* statement (Rise Statement A: thick rules) */
+.statement{font:800 clamp(26px,3.6vw,34px)/1.3 var(--f-display);border-top:6px solid var(--amber);border-bottom:6px solid var(--amber);padding-block:28px;text-align:center}
+.imgtext{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:center}
+@media (max-width:640px){.imgtext{grid-template-columns:1fr}}
+/* cover (Rise cover: full-bleed art, pill START COURSE, DETAILS) */
+.cover-hero{position:relative;min-height:560px;display:flex;align-items:flex-end;padding-block:56px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));
+  background:linear-gradient(to top,rgba(0,30,48,.97) 8%,rgba(0,30,48,.55) 45%,rgba(0,30,48,.2)),radial-gradient(35% 45% at 70% 30%,rgba(250,192,0,.45),transparent 70%),radial-gradient(40% 50% at 25% 40%,rgba(0,163,152,.22),transparent 70%),linear-gradient(160deg,#16496A,#03121C)}
+.cover-hero .tag{position:absolute;top:18px;right:20px;font:500 12px var(--f-mono);color:rgba(255,255,255,.5);background:rgba(0,0,0,.3);padding:3px 8px;border-radius:4px}
+.cover-in{max-width:960px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:16px}
+.cover-in h1{font-size:clamp(38px,6.5vw,64px);font-weight:900;line-height:1.02;letter-spacing:-.015em}
+.cover-in .lead{max-width:640px;color:#D4DEE4}
+.cover-btns{display:flex;gap:18px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.pillbtn{background:#fff;color:#001E30;border-radius:999px;padding:13px 28px;font:800 13px var(--f-body);letter-spacing:.12em;text-decoration:none;border:0}
+.linkbtn{background:none;border:0;color:#fff;font:700 13px var(--f-body);letter-spacing:.12em;cursor:pointer}
+.objs{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.toc{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.toc li{border-bottom:1px solid var(--line)}
+.toc a{display:flex;gap:14px;align-items:center;padding:14px 4px;color:var(--ink);text-decoration:none}
+.toc a:hover{color:var(--teal-hi)}
+.toc .n{font:700 12px var(--f-mono);color:var(--amber);flex:0 0 28px}
+.toc .ttl{flex:1;font-weight:500}
+.toc small{color:var(--faint);font:500 12px var(--f-mono)}
+.toc .sec{font:700 11px var(--f-body);letter-spacing:.14em;color:var(--faint);padding:18px 4px 8px;border-bottom:0}
+/* CONTINUE (Rise continue divider) */
+.cont>.in{align-items:stretch}
+.contbtn{width:100%;padding:20px;font:800 15px var(--f-body);letter-spacing:.2em;border-radius:2px}
+.cont [data-lock]{text-align:center;color:var(--muted);font-size:13px}
+/* lesson footer (Rise next-lesson) */
+.lnav{background:var(--navy);padding-block:56px 72px;padding-left:16px;padding-right:16px;display:flex;flex-direction:column;align-items:center;gap:12px;border-top:1px solid rgba(255,255,255,.06)}
+.lnav .nl{font:700 11px var(--f-body);letter-spacing:.16em;color:var(--faint)}
+.lnav .btn{font-size:15px;padding:16px 32px}
+/* process (Rise process: START card, side arrows, step counter) */
+.process{position:relative;display:flex;align-items:center;gap:10px}
+.process .cardp{flex:1;background:var(--card);border-radius:4px;box-shadow:0 12px 40px rgba(0,0,0,.35);overflow:hidden;min-width:0}
+.process .stage{display:grid;grid-template-columns:220px minmax(0,1fr);gap:22px;padding:26px;align-items:center;min-height:220px}
+.process .stage.intro{grid-template-columns:1fr;text-align:center;justify-items:center;gap:14px}
+@media (max-width:640px){.process .stage{grid-template-columns:1fr}}
+.process h3{font-size:20px;font-weight:800;margin-bottom:8px}
+.process .arrow{flex:0 0 44px;height:44px;border-radius:50%;border:0;background:var(--teal);color:var(--accent-ink);font:800 18px var(--f-body);cursor:pointer}
+.process .arrow[disabled]{opacity:.25}
+.process .dots{display:flex;gap:6px;justify-content:center;padding:0 0 18px}
+.process .dots i{width:28px;height:4px;border-radius:2px;background:var(--line)}
+.process .dots i.on{background:var(--amber)}
+/* labeled graphic (Rise markers) */
+.lg{position:relative;border-radius:4px;overflow:hidden;background:var(--sx-bg);aspect-ratio:16/9;max-width:100%;box-shadow:0 0 0 1px var(--sx-line),0 18px 60px rgba(0,163,152,.18)}
+.lg .wf{position:absolute;inset:0;display:grid;grid-template-columns:22% 1fr;grid-template-rows:18% 1fr 22%;gap:6px;padding:10px}
+.lg .wf div{border:1px solid var(--sx-line);background:rgba(10,39,52,.6);border-radius:4px;color:var(--sx-muted);font:500 11px var(--f-mono);padding:6px}
+.lg .wf .ev{grid-row:1/4}
+.marker{position:absolute;width:38px;height:38px;border-radius:50%;background:var(--teal);color:var(--accent-ink);border:0;font:800 15px var(--f-display);cursor:pointer;display:grid;place-items:center;transform:translate(-50%,-50%);box-shadow:0 0 0 6px rgba(0,163,152,.3)}
+@media (prefers-reduced-motion:no-preference){.marker:not(.seen){animation:pulse 1.8s infinite}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,163,152,.55)}100%{box-shadow:0 0 0 16px rgba(0,163,152,0)}}
+.marker.seen{background:#fff;color:#001E30;box-shadow:none}
+.pop{background:#fff;color:#1E2328;border-radius:4px;padding:16px 18px;font-size:15.5px;box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.pop b{font:800 16px var(--f-display);display:block;margin-bottom:4px}
+/* flashcard (Rise flashcard) */
+.flip{perspective:900px;cursor:pointer;max-width:380px;width:100%;margin:0 auto;border:0;background:none;padding:0}
+.flip .card{position:relative;height:260px;transition:transform .55s;transform-style:preserve-3d}
+.flip.on .card{transform:rotateY(180deg)}
+.flip .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:4px;background:var(--card);box-shadow:0 12px 40px rgba(0,0,0,.35);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;padding:24px;text-align:center}
+.flip .face::after{content:"↻";position:absolute;right:14px;bottom:10px;font-size:18px;color:var(--faint)}
+.flip .back{transform:rotateY(180deg);background:var(--card-2)}
+.flip .big{font:700 34px var(--f-mono);color:var(--amber)}
+@media (prefers-reduced-motion:reduce){.flip .card{transition:none}}
+/* knowledge check (Rise quiz card) */
+.kc{background:var(--card);border-radius:4px;padding:28px;box-shadow:0 12px 40px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:16px}
+.kc .qn{font:700 12px var(--f-body);letter-spacing:.14em;color:var(--muted)}
+.kc .qt{font:600 20px/1.4 var(--f-body)}
+.opts{display:flex;flex-direction:column;gap:2px}
+.opt{display:flex;gap:14px;align-items:flex-start;border:0;border-top:1px solid var(--line);padding:14px 4px;cursor:pointer;background:none;text-align:left;width:100%;font-size:16px}
+.opt input{margin-top:5px;accent-color:var(--teal);width:18px;height:18px}
+.submit{align-self:center;background:none;border:0;border-bottom:2px solid var(--teal);color:var(--ink);font:800 13px var(--f-body);letter-spacing:.16em;padding:6px 2px;cursor:pointer}
+.fb{border-radius:4px;padding:14px 16px;font-size:15.5px;display:flex;gap:12px;align-items:flex-start}
+.fb::before{flex:0 0 26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px}
+.fb.ok{background:var(--ok-t);color:var(--ink)}.fb.ok::before{content:"✓";background:var(--ok);color:#00141F}
+.fb.bad{background:var(--bad-t);color:var(--ink)}.fb.bad::before{content:"✕";background:var(--bad);color:#00141F}
+/* scenario (Rise scenario: scene, character, speech bubble, responses) */
+.scene{position:relative;border-radius:4px;overflow:hidden;min-height:340px;display:flex;align-items:flex-end;justify-content:center;padding:24px;
+  background:radial-gradient(30% 40% at 18% 35%,rgba(250,192,0,.28),transparent 70%),linear-gradient(175deg,#1A4560,#06192A)}
+.scene .who-img{position:absolute;right:6%;bottom:0;width:200px;height:290px;border-radius:100px 100px 0 0;background:linear-gradient(#2C5269,#13324A);display:grid;place-items:center;font:600 11px var(--f-mono);color:#B8C8D2}
+.scene .bubble{position:relative;z-index:1;background:#fff;color:#1E2328;border-radius:6px;padding:18px 20px;max-width:520px;width:100%;margin-right:auto;display:flex;flex-direction:column;gap:12px}
+.scene .bubble .nm{font:800 12px var(--f-body);letter-spacing:.12em;color:#5A6470}
+.scene .bubble .say{font-size:18px}
+.scene .resp{display:flex;flex-direction:column;gap:8px}
+.scene .resp button{text-align:left;border:2px solid #D9DDE2;background:#fff;color:#1E2328;border-radius:4px;padding:10px 12px;cursor:pointer;font-size:15px}
+.scene .resp button:hover{border-color:var(--teal)}
+.scene .fb{color:#1E2328}
+/* sorting (Rise sorting activity) */
+.piles{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:560px){.piles{grid-template-columns:1fr}}
+.pile{border:2px dashed rgba(255,255,255,.25);border-radius:4px;padding:14px;min-height:150px;display:flex;flex-direction:column;gap:8px;cursor:pointer;background:rgba(0,0,0,.15)}
+.pile h3{font:800 13px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:center}
+.cards{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.scard{border:0;background:var(--card);border-radius:4px;padding:12px 14px;font-size:15px;cursor:pointer;text-align:left;box-shadow:0 6px 20px rgba(0,0,0,.3);max-width:340px}
+.scard[aria-pressed="true"]{box-shadow:0 0 0 3px var(--teal),0 6px 20px rgba(0,0,0,.3)}
+.scard.ok{box-shadow:inset 4px 0 0 var(--ok)}.scard.bad{box-shadow:inset 4px 0 0 var(--bad)}
+/* tables, timeline, chart */
+.tbl{overflow-x:auto;background:var(--card);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line)}
+th{font:700 12px var(--f-body);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);background:rgba(255,255,255,.03)}
+td.m{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--amber)}
+.tl{list-style:none;margin:0;padding:0 0 0 8px;border-left:2px solid var(--line);display:flex;flex-direction:column;gap:18px}
+.tl li{padding-left:22px;position:relative;display:flex;flex-direction:column}
+.tl li::before{content:"";position:absolute;left:-17px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--navy);border:2px solid var(--muted)}
+.tl li.car::before{background:var(--teal);border-color:var(--teal)}
+.tl li.al::before{background:var(--red);border-color:var(--red)}
+.tl b{font:700 15px var(--f-mono);color:var(--amber)}
+.bars{display:flex;flex-direction:column;gap:12px}
+.bar{display:grid;grid-template-columns:130px minmax(0,1fr) 36px;gap:12px;align-items:center;font-size:14px}
+.bar i{display:block;height:26px;background:linear-gradient(90deg,var(--teal),var(--teal-hi));border-radius:2px}
+.bar b{font-family:var(--f-mono);text-align:right}
+/* tabs, accordion */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{border:0;background:none;padding:12px 16px;border-bottom:3px solid transparent;cursor:pointer;font:700 13px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tabs button[aria-selected="true"]{border-color:var(--amber);color:var(--ink)}
+details.acc{background:var(--card);border-radius:2px;box-shadow:inset 4px 0 0 var(--teal);margin-bottom:2px}
+details.acc summary{list-style:none;cursor:pointer;padding:16px 20px;font-weight:700;display:flex;justify-content:space-between;gap:10px}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary::after{content:"+";font-size:22px;line-height:1;color:var(--teal-hi)}
+details.acc[open] summary::after{content:"–"}
+details.acc>p{padding:0 20px 18px}
+/* diagrams */
+.diag{background:var(--card);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
+.flow .node{flex:1 1 150px;border:1px solid var(--line);border-radius:4px;padding:12px;display:flex;flex-direction:column;gap:4px;min-width:0;background:rgba(0,0,0,.15)}
+.flow .arrow{align-self:center;font:700 22px var(--f-mono);color:var(--amber)}
+.flow .node b{font-family:var(--f-display);font-size:14px}
+.flow .node small{color:var(--muted);font-size:12.5px}
+.flow .ph{min-height:80px}
+.mini td,.mini th{padding:5px 8px;font-size:12px}
+.mini td{font-family:var(--f-mono)}
+.mini tr.hl td{background:rgba(0,163,152,.2);color:var(--teal-hi);font-weight:700}
+.clocks{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+.clk{border:2px solid var(--line);border-radius:6px;padding:16px;text-align:center;display:flex;flex-direction:column;gap:2px;background:rgba(0,0,0,.2)}
+.clk .tm{font:700 40px var(--f-mono)}
+.clk.here{border-color:var(--amber);box-shadow:0 0 30px rgba(250,192,0,.18)}
+.clk.here .tm{color:var(--amber)}
+.clk small{color:var(--muted)}
+.ruler{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font:500 12.5px var(--f-mono);color:var(--muted)}
+.ruler i{height:2px;background:var(--muted);position:relative}
+.ruler i::after{content:"";position:absolute;right:-1px;top:-5px;border-left:8px solid var(--muted);border-top:6px solid transparent;border-bottom:6px solid transparent}
+svg text{fill:var(--muted);font:500 11px var(--f-mono)}
+svg .axis{stroke:rgba(255,255,255,.25)}
+svg .carbar{fill:var(--teal)}
+svg .alarm{stroke:var(--red);stroke-width:3}
+svg .lbl{fill:var(--ink);font:600 12px var(--f-body)}
+/* case board (pinned cards under a lamp) */
+.board{border-radius:4px;padding:22px;display:flex;flex-direction:column;gap:16px;background:radial-gradient(60% 80% at 80% 0%,rgba(250,192,0,.14),transparent 70%),#0A2433;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.pins{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.pin{background:#E9E4D6;color:#1E2328;border-radius:2px;padding:14px 14px 12px;font-size:15px;display:flex;flex-direction:column;gap:4px;position:relative;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.pin::before{content:"";position:absolute;top:-6px;left:50%;width:12px;height:12px;border-radius:50%;background:#6C7A84;transform:translateX(-50%);box-shadow:0 2px 3px rgba(0,0,0,.4)}
+.pin small{font:700 10.5px var(--f-body);color:#5A6470;text-transform:uppercase;letter-spacing:.12em}
+.pin.newpin::before{background:var(--amber)}
+.pin.newpin{box-shadow:0 0 0 2px var(--amber),0 8px 20px rgba(0,0,0,.4)}
+.skills{display:flex;gap:8px;flex-wrap:wrap;font:700 12px var(--f-body);letter-spacing:.06em}
+.skills span{border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:var(--muted)}
+.skills span.now{background:var(--amber);color:#1E2328;border-color:var(--amber)}
+.skills span.did{color:var(--teal-hi);border-color:var(--teal)}
+/* video (Rise player) */
+.video{aspect-ratio:16/9;border-radius:4px;display:grid;place-items:center;color:#E8EEF2;position:relative;cursor:pointer;border:0;width:100%;font:500 14px var(--f-mono);overflow:hidden;
+  background:radial-gradient(35% 45% at 70% 35%,rgba(250,192,0,.35),transparent 70%),linear-gradient(165deg,#163F5A,#030E16)}
+.video .play{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.92);color:#001E30;display:grid;place-items:center;font-size:26px;padding-left:5px}
+.video .bar2{position:absolute;left:0;right:0;bottom:0;height:42px;background:linear-gradient(transparent,rgba(0,0,0,.7));display:flex;align-items:center;gap:12px;padding:0 14px;font-size:12px}
+.video .bar2 i{flex:1;height:3px;background:rgba(255,255,255,.3);border-radius:2px}
+.video .cap{position:absolute;left:14px;top:12px;font-size:12px;opacity:.75}
+/* ---------- Sextant ---------- */
+.sx{background:var(--sx-bg);color:var(--sx-ink);border-radius:6px;overflow:hidden;font-size:14px;box-shadow:0 0 0 1px var(--sx-line),0 20px 70px rgba(0,163,152,.22)}
+.sx-top{display:flex;justify-content:space-between;gap:10px;padding:8px 14px;border-bottom:1px solid var(--sx-line);font:600 12px var(--f-mono);letter-spacing:.06em;color:var(--sx-muted);flex-wrap:wrap}
+.sx-top b{color:var(--k3)}
+.sx-task{padding:10px 14px;background:var(--sx-panel);border-bottom:1px solid var(--sx-line);font-weight:500;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sx-task .stp{font:700 11px var(--f-mono);background:var(--k3);color:#06211F;border-radius:4px;padding:2px 7px}
+.sx-body{display:grid;grid-template-columns:150px minmax(0,1fr)}
+@media (max-width:620px){.sx-body{grid-template-columns:1fr}.sx-ev{border-right:0!important;border-bottom:1px solid var(--sx-line)}}
+.sx-ev{border-right:1px solid var(--sx-line);padding:10px;display:flex;flex-direction:column;gap:4px}
+.sx-ev h4{margin:0 0 4px;font:600 11px var(--f-mono);color:var(--sx-muted);letter-spacing:.06em}
+.sx-ev button{background:none;border:1px solid transparent;color:var(--sx-ink);text-align:left;padding:6px 8px;border-radius:6px;cursor:pointer;font:500 13px var(--f-mono);display:flex;justify-content:space-between;gap:6px}
+.sx-ev button:hover{border-color:var(--sx-line)}
+.sx-ev button.act{background:var(--sx-panel);border-color:var(--k3)}
+.sx-ev button small{color:var(--sx-muted)}
+.sx-main{padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.sx-builder{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:30px}
+.sx-builder .empty{color:var(--sx-muted);font-size:13px}
+.chipk{display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:4px 8px;font:500 13px var(--f-body);border:1px solid;background:rgba(255,255,255,.03)}
+.chipk .n{font:700 11px var(--f-mono);border-radius:50%;width:18px;height:18px;display:grid;place-items:center;color:#0B1E28}
+.chipk input,.chipk select{background:#06151C;border:1px solid var(--sx-line);color:var(--sx-ink);border-radius:4px;padding:3px 6px;font:500 13px var(--f-mono);min-width:0;width:170px;max-width:100%}
+.chipk select{width:auto}
+.k1{border-color:var(--k1)}.k1 .n{background:var(--k1)}.k2{border-color:var(--k2)}.k2 .n{background:var(--k2)}.k3{border-color:var(--k3)}.k3 .n{background:var(--k3)}
+.k4{border-color:var(--k4)}.k4 .n{background:var(--k4)}.k5{border-color:var(--k5)}.k5 .n{background:var(--k5)}
+.addchip{background:none;border:1px dashed var(--sx-muted);color:var(--sx-ink);border-radius:6px;padding:4px 10px;cursor:pointer;font:500 13px var(--f-body)}
+.sx-sql{background:#06151C;border:1px solid var(--sx-line);border-radius:8px;padding:8px 10px;font:500 12.5px/1.7 var(--f-mono);overflow-x:auto;margin:0;white-space:pre}
+.sx-sql .ln{display:block;padding-left:8px;border-left:3px solid transparent}
+.sx-sql .ln[data-k="1"]{border-color:var(--k1)}.sx-sql .ln[data-k="2"]{border-color:var(--k2)}.sx-sql .ln[data-k="3"]{border-color:var(--k3)}.sx-sql .ln[data-k="4"]{border-color:var(--k4)}.sx-sql .ln[data-k="5"]{border-color:var(--k5)}
+.sx-sql input{background:#0B2230;border:1px dashed var(--k2);color:var(--sx-ink);font:inherit;padding:1px 4px;border-radius:3px;width:100%;max-width:640px}
+.sx-ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sxbtn{background:var(--k3);color:#06211F;border:0;border-radius:6px;padding:7px 14px;font:700 13px var(--f-body);cursor:pointer}
+.sxbtn.ghost{background:none;color:var(--sx-ink);border:1px solid var(--sx-line)}
+.sxbtn[disabled]{opacity:.4;cursor:not-allowed}
+.sx-ctrl label{font-size:13px;color:var(--sx-muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sx-ctrl input[type=text]{background:#06151C;border:1px solid var(--sx-line);color:var(--sx-ink);border-radius:4px;padding:5px 8px;font:500 13px var(--f-mono);width:110px}
+.sx-res{border:1px solid var(--sx-line);border-radius:8px;min-height:60px;overflow-x:auto;transition:box-shadow .3s,border-color .3s}
+.sx-res.red{border-color:var(--sx-red);box-shadow:0 0 0 2px var(--sx-red),0 0 30px rgba(239,90,95,.35)}
+.sx-res .rhead{display:flex;justify-content:space-between;padding:6px 10px;font:600 11.5px var(--f-mono);color:var(--sx-muted);border-bottom:1px solid var(--sx-line);gap:8px;flex-wrap:wrap}
+.sx-res .zero{padding:18px 10px;text-align:center;font:700 22px var(--f-mono);color:var(--sx-red)}
+.sx-res .hint0{padding:16px 10px;color:var(--sx-muted);font-size:13px}
+.sx-res table{font-size:12.5px}
+.sx-res th{color:var(--sx-muted);border-color:var(--sx-line);background:none;padding:7px 10px;font:600 11px var(--f-mono)}
+.sx-res td{border-color:var(--sx-line);color:var(--sx-ink);font-family:var(--f-mono);white-space:nowrap;padding:7px 10px}
+.sx-res tr.hl td{background:rgba(63,209,196,.12);color:var(--k3)}
+.sx-el{display:flex;gap:10px;padding:10px 14px;border-top:1px solid var(--sx-line);background:var(--sx-panel);align-items:flex-start}
+.sx-el .av{flex:0 0 36px;height:36px;border-radius:50%;background:radial-gradient(60% 60% at 60% 35%,rgba(250,192,0,.45),transparent 70%),#2B4756;display:grid;place-items:center;font:700 12px var(--f-mono);color:var(--sx-ink)}
+.sx-el .txt{flex:1;min-width:0}
+.sx-el .txt small{display:block;font:600 11px var(--f-mono);color:var(--sx-muted);letter-spacing:.05em}
+.sx-el .help{background:none;border:1px solid var(--sx-line);color:var(--sx-ink);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12.5px;white-space:nowrap}
+.glow{box-shadow:0 0 0 2px var(--k2),0 0 18px rgba(245,165,36,.6)!important;border-radius:6px}
+.sx-score{display:flex;gap:6px;flex-wrap:wrap;font:600 12px var(--f-mono)}
+.sx-score span{border:1px solid var(--sx-line);border-radius:4px;padding:2px 7px;color:var(--sx-muted)}
+.sx-score span.got{border-color:var(--k3);color:var(--k3)}
+.sx-score span.lost{border-color:var(--sx-red);color:var(--sx-red);text-decoration:line-through}
+.report{color-scheme:light;background:#F4F1E8;color:#1E2328;border-radius:4px;padding:16px;display:flex;flex-direction:column;gap:10px;font-size:14px;--line:#D8D2C2;--ink:#1E2328}
+.report h4{margin:0;font:700 13px var(--f-mono);letter-spacing:.06em}
+.final{border-radius:6px;padding:14px;text-align:center;font-size:15px;flex-direction:column;align-items:center}
+.final::before{display:none}
+.final b{display:block;font:800 30px var(--f-mono)}
+@media (max-width:900px){
+  .app,body.nav-closed .app{grid-template-columns:1fr}
+  .side{position:fixed;inset:0 auto 0 0;width:min(320px,86vw);z-index:40;transform:translateX(-100%);transition:transform .25s;height:100%;visibility:visible!important}
+  body.nav-open .side{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.55)}
+}
+</style>
+
+<div class="app">
+<nav class="side" id="side" aria-label="Course menu">
+  <a class="side-cover" href="#cover"><b>The Halden &amp; Co. Break-in</b></a>
+  <div class="side-prog"><span id="pct">0% COMPLETE</span><div class="prog" aria-hidden="true"><i id="progbar"></i></div></div>
+  <ol class="menu" id="menu"></ol>
+  <details class="review-tools" open><summary>PROTOTYPE REVIEW PANEL</summary><div class="rt-body">
+    <div class="scorebox" aria-live="polite"><span class="rt-note">Case score (shown at the end in the real course)</span><b id="score">0 / 10</b><span class="rt-note" id="scoreparts">Your turn – · Count – · Conclude –</span></div>
+    <label class="switch"><input type="checkbox" id="sw-learner"> Learner view (hide review notes)</label>
+    <label class="switch"><input type="checkbox" id="sw-unlock"> Unlock all blocks</label>
+    <div class="legend" aria-label="Legend">
+      <span class="pill t-new">NEW</span><span class="pill t-chg">CHANGED</span>
+      <span class="pill c-watch">Watch</span><span class="pill c-story">Story</span><span class="pill c-explore">Read &amp; explore</span>
+      <span class="pill c-check">Practice</span><span class="pill c-sextant">Sextant</span><span class="pill c-nav">Navigation</span>
+    </div>
+    <div class="rt-note" id="runtime"></div>
+    <div class="rt-note" id="savemode">Notes: connecting…</div>
+  </div></details>
+</nav>
+
+<main id="main">
+<div class="topbar"><button class="hamb" id="hamb" type="button" aria-label="Show or hide the lesson menu" aria-controls="side"><i></i></button><span class="tt" id="tbtitle"></span><i class="tb-prog" id="tbprog"></i></div>
+
+<!-- ================= COVER ================= -->
+<section class="lesson" id="cover" data-title="Start" data-short="Cover">
+  <div class="cover-hero"><span class="tag">COVER ART · store window in the rain (video's first shot)</span>
+    <div class="cover-in">
+      <div class="eyebrow">Yuto Original · Case PCPD-26-03117</div>
+      <h1>The Halden &amp; Co. Break-in</h1>
+      <p class="lead">A jewelry store is robbed. One suspect wipes his phone. The other can't. Use Sextant to read that phone's records and show where it's been.</p>
+      <div class="cover-btns"><a class="pillbtn" href="#l1">START COURSE</a><button class="linkbtn" type="button" id="detbtn" aria-expanded="false">DETAILS ⌄</button></div>
+    </div>
+  </div>
+  <div class="blk" data-id="0" data-type="Cover page" data-cat="nav" data-tag="chg" data-dur="0"
+    data-why="Your note: 'Fictional' removed, and the description now says what they'll learn to do in Sextant, short and plain. Title options to choose from: 'The Halden &amp; Co. Break-in' · 'Where Has This Phone Been?' · 'Five Hours Off'. The fictional disclaimer moves to the course footer.">
+    <div class="in">
+      <div id="details" hidden><p style="margin-bottom:10px"><b>You'll learn to:</b></p>
+      <ul class="objs"><li>Read a phone's records as a table</li><li>Turn phone time into local time</li><li>Line up two records on one clock</li><li>Count a pattern and word a finding a court accepts</li></ul>
+      <p style="color:var(--muted);font-size:15px;margin-top:10px">About 17 minutes · 3 hands-on moments in Sextant · scored out of 10</p></div>
+      <ol class="toc" id="toc"></ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LESSON 1 ================= -->
+<section class="lesson" id="l1" data-title="The case" data-short="1">
+  <header class="lhead"><div class="in"><div class="k">Lesson 1 of 6</div><h1>The case</h1></div></header>
+
+  <div class="blk" data-id="1.1" data-type="Video" data-cat="watch" data-dur="115" data-done-on="video">
+    <div class="in"><button class="video" type="button" data-video="1.1" aria-label="Play the intro video"><span class="play">▶</span><span class="cap">Intro video · captions EN / ES</span><span class="bar2">▶ <i></i> 0:00 / 1:55 · CC</span></button></div>
+  </div>
+
+  <div class="blk alt" data-id="1.2" data-type="Accordion" data-cat="explore" data-dur="0">
+    <div class="in"><details class="acc"><summary>Read the video transcript</summary>
+      <p style="font-size:15px;color:var(--muted)">Halden and Company, forty-seven years on Mercer Street, never once robbed. Until Tuesday night, when someone took fourteen watches in seven minutes. … I know someone who can help with this, and that's you. Ready to take a look?<br><i>(Full transcript with speaker names in the build.)</i></p></details></div>
+  </div>
+
+  <div class="blk is-chg" data-id="1.3" data-type="Quote" data-cat="story" data-tag="chg" data-dur="15"
+    data-why="Your note: she picks up her last line from the video ('Ready to take a look?'), then says who she is and what we're doing. Hale isn't introduced here; he's introduced in lesson 3, when he walks in with the alarm log.">
+    <div class="in"><div class="quote"><div class="ph round"><span>ELENA</span></div>
+      <div><blockquote>"Ready? Good. I'm Elena, from the Digital Evidence Unit. Here's where we are: two men, one gray car, and one phone that wasn't wiped. Marsh says he's never been in that car. Let's see what his phone says."</blockquote><cite>Elena Rios · Digital Evidence Unit</cite></div></div></div>
+  </div>
+
+  <div class="blk alt" data-id="1.4" data-type="Statement" data-cat="story" data-dur="5">
+    <div class="in"><p class="statement">Your question: has Marsh's phone been in Vance's car?</p></div>
+  </div>
+
+  <div class="blk is-chg" data-id="1.5" data-type="Process" data-cat="explore" data-tag="chg" data-dur="25"
+    data-why="Your note: the checklist was dry. Now it's Rise's Process block: four steps, each with a small picture, read one at a time. Same facts.">
+    <div class="in">
+      <div class="process" data-process>
+        <button class="arrow" type="button" data-prev aria-label="Previous step">‹</button>
+        <div class="cardp">
+          <div class="stage intro" data-step><div class="eyebrow">The case file</div><h3>Before you start</h3><p>Four things happened before this phone reached you.</p><button class="btn" type="button" data-start>Start</button></div>
+          <div class="stage" data-step hidden><div class="ph"><span>IMG · signed warrant, court stamp</span></div><div><h3>1 · The warrant</h3><p>PCPD-SW-26-0412, signed Wednesday 4 March at 16:30. We're allowed to search the phone.</p></div></div>
+          <div class="stage" data-step hidden><div class="ph"><span>IMG · phone on a lab dock, cable in</span></div><div><h3>2 · The copy</h3><p>The lab copied the phone on Thursday 5 March at 09:30. A digital fingerprint (hash) proves the copy matches the phone exactly.</p></div></div>
+          <div class="stage" data-step hidden><div class="ph"><span>IMG · phone with four ticks: name, SIM, account, Bluetooth</span></div><div><h3>3 · The match</h3><p>Device name, SIM, Apple Account and Bluetooth address all match. This is Marsh's phone.</p></div></div>
+          <div class="stage" data-step hidden><div class="ph"><span>IMG · gloved hand holding a phone, face out of frame</span></div><div><h3>4 · The limit</h3><p>The phone can't tell us who was holding it. That's a separate question. Your job is what the phone did.</p></div></div>
+          <div class="dots" data-dots></div>
+        </div>
+        <button class="arrow" type="button" data-next aria-label="Next step">›</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="blk alt" data-id="1.6" data-type="Image & text" data-cat="explore" data-dur="10">
+    <div class="in"><div class="imgtext"><div class="ph"><span>EXH-03 · car stereo screen: "CAR AUDIO 7731", paired list shows "Leon's iPhone"</span></div>
+      <div><div class="eyebrow">EXH-03 · Car search, 4 Mar</div><p>The gray sedan's stereo is named <b>CAR AUDIO 7731</b>. Its paired list shows "Leon's iPhone".</p><p style="margin-top:10px"><i>Elena: "Remember that stereo name. You'll need it."</i></p></div></div></div>
+  </div>
+
+  <div class="blk is-new" data-id="1.7a" data-type="Image & text (diagram)" data-cat="explore" data-tag="new" data-dur="20"
+    data-why="Your question on 1.7: yes, this is the learner's first time with Sextant. This new block explains the idea in plain words, with a picture, before they see the tool's screen.">
+    <div class="in">
+      <div class="eyebrow">Meet Sextant</div>
+      <h2 class="bh">A phone keeps a diary. Sextant reads it.</h2>
+      <p>Every time a phone connects to something (earbuds, a car, a Wi-Fi network) it writes a line in its records. The lab copies those records out, and Sextant, our analysis tool, sorts them into tables, like a spreadsheet.</p>
+      <div class="diag">
+        <div class="flow">
+          <div class="node"><b>1 · The phone</b><small>Keeps a record of each connection</small><div class="ph" style="min-height:70px"><span>phone icon</span></div></div>
+          <div class="arrow">→</div>
+          <div class="node"><b>2 · The lab copy</b><small>Copied and fingerprinted (hash)</small><div class="ph" style="min-height:70px"><span>lab dock icon</span></div></div>
+          <div class="arrow">→</div>
+          <div class="node" style="flex-basis:260px"><b>3 · Sextant's table</b><small>One row = one event · one column = one fact</small>
+            <div class="tbl"><table class="mini"><thead><tr><th>device</th><th>connected</th></tr></thead><tbody>
+              <tr><td>Leon's AirPods</td><td class="m">791723056</td></tr><tr><td>LIVING ROOM SPEAKER</td><td class="m">791776306</td></tr><tr class="hl"><td>CAR AUDIO 7731</td><td class="m">794289494</td></tr></tbody></table></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="blk alt is-chg" data-id="1.7" data-type="Labeled graphic" data-cat="explore" data-tag="chg" data-dur="20" data-done-on="markers"
+    data-why="Your note: added a one-line intro so the learner knows what they're looking at and what to do.">
+    <div class="in">
+      <p><b>This is Sextant.</b> Tap the three markers to see how it works.</p>
+      <div class="lg" data-lg>
+        <div class="wf"><div class="ev">evidence list</div><div>sentence builder</div><div>data table</div><div>SQL panel</div></div>
+        <button class="marker" type="button" style="left:12%;top:40%" data-m="0">1</button>
+        <button class="marker" type="button" style="left:60%;top:56%" data-m="1">2</button>
+        <button class="marker" type="button" style="left:55%;top:10%" data-m="2">3</button>
+      </div>
+      <div class="pop" data-pop hidden></div>
+    </div>
+  </div>
+
+  <div class="blk is-chg" data-id="1.8" data-type="Image + lesson button" data-cat="nav" data-tag="chg" data-dur="5"
+    data-why="Your note: 'no image or interaction?' Rise's Continue divider is only a button, so it's gone. The lesson ends on the phone itself, bagged as evidence, with Elena's line, and the next-lesson button below does the job. It unlocks once all three markers are open.">
+    <div class="in"><div class="imgtext"><div class="ph"><span>IMG · EXH-02, Leon's blue iPhone in an evidence bag, powered, on the lab bench</span></div>
+      <div><div class="eyebrow">EXH-02 · Leon's iPhone</div><p class="lead"><i>"Everything's ready. Let's open his phone."</i></p></div></div></div>
+  </div>
+  <div class="lnav"><a class="btn" href="#l2" data-needs="1.7">Open Marsh's phone →</a></div>
+</section>
+
+<!-- ================= LESSON 2 ================= -->
+<section class="lesson" id="l2" data-title="Read the table" data-short="2">
+  <header class="lhead"><div class="in"><div class="k">Lesson 2 of 6 · Skill 1 of 3</div><h1>Read the table</h1></div></header>
+
+  <div class="blk is-new" data-id="2.0" data-type="Image (case board)" data-cat="story" data-tag="new" data-dur="10"
+    data-why="NEW bridge: the case board opens every lesson. It shows what we know so far (new pins highlighted) and which skill comes next, so each lesson picks up where the last one ended. In Rise it's one image, updated per lesson.">
+    <div class="in"><div class="board"><div class="eyebrow">Case board · what we know</div>
+      <div class="pins"><div class="pin"><small>The claim</small>"I've never been in his car." Leon Marsh</div><div class="pin"><small>The car</small>Gray sedan, stereo CAR AUDIO 7731</div><div class="pin"><small>The phone</small>Marsh's iPhone, copy verified</div></div>
+      <div class="skills"><span class="now">1 · Read the table</span><span>2 · Merge</span><span>3 · Count</span></div></div></div>
+  </div>
+
+  <div class="blk alt" data-id="2.1" data-type="Text" data-cat="story" data-dur="5">
+    <div class="in"><h2 class="bh">Skill 1 · Read the table</h2><p>Pick the rows that matter, and turn the phone's time into a time a jury can read.</p></div>
+  </div>
+
+  <div class="blk" data-id="2.2" data-type="Flashcard" data-cat="check" data-dur="10">
+    <div class="in"><p style="text-align:center;color:var(--muted)">Tap the card.</p>
+      <button class="flip" type="button" aria-label="Flip card"><div class="card"><div class="face"><span class="big">794289494</span><span>This is a time. When?</span></div>
+        <div class="face back"><b>22:58:14 on Tuesday 3 March, in Port Calder.</b><span style="font-size:14px;color:var(--muted)">iPhones count seconds from 1 January 2001, in world time (UTC).</span></div></div></button></div>
+  </div>
+
+  <div class="blk alt is-new" data-id="2.2b" data-type="Image & text (diagram)" data-cat="explore" data-tag="new" data-dur="20"
+    data-why="NEW, the 'con plastilina' moment: a picture of the two clocks before they ever touch the time fix. It also plants the five hours that the trap in lesson 3 depends on.">
+    <div class="in">
+      <h2 class="bh">Two clocks</h2>
+      <p>Phones don't store dates. They count seconds from one fixed moment: midnight on 1 January 2001, in world time (UTC).</p>
+      <div class="diag">
+        <div class="ruler"><span>1 Jan 2001<br>00:00 UTC</span><i></i><span>+ 794,289,494 s</span></div>
+        <div class="clocks">
+          <div class="clk"><small>World time (UTC)</small><span class="tm">03:58</span><small>Wed 4 March</small></div>
+          <div style="font:700 15px var(--f-mono);text-align:center">−5 h</div>
+          <div class="clk here"><small>Port Calder</small><span class="tm">22:58</span><small>Tue 3 March</small></div>
+        </div>
+        <p style="font-size:14px">Same moment, two clocks. Port Calder is <b>five hours behind</b> world time in winter, so every phone time needs that fix.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="blk" data-id="2.3" data-type="Code block · Sextant" data-cat="sextant" data-dur="120"
+    data-why="Not scored. Full help ladder (nudge, highlight, show). Elena is voiced here (Katie). In the prototype the 'Help' button walks through the three levels.">
+    <div class="in"><div data-sx="showme"></div></div>
+  </div>
+
+  <div class="blk alt cont" data-id="2.4" data-type="Continue" data-cat="nav" data-dur="0" data-needs="2.3">
+    <div class="in" style="align-items:center"><button class="btn contbtn" type="button" disabled>Your turn</button><small style="color:var(--muted)" data-lock>Finish the steps above to continue.</small></div>
+  </div>
+
+  <div class="blk" data-id="2.5" data-type="Quote" data-cat="story" data-dur="5">
+    <div class="in"><div class="quote"><div class="ph round"><span>ELENA</span></div><div><blockquote>"Now you. Same moves, different table. When did Marsh's phone reach the motel? I'll stay quiet unless you ask."</blockquote></div></div></div>
+  </div>
+
+  <div class="blk alt" data-id="2.6" data-type="Code block · Sextant" data-cat="sextant" data-dur="75"
+    data-why="Scored, 3 points. One 'Ask Elena' hint per task, costing that task's point. Wrong tries cost nothing.">
+    <div class="in"><div data-sx="yourturn"></div></div>
+  </div>
+
+  <div class="blk is-new" data-id="2.7" data-type="Quote" data-cat="story" data-tag="new" data-dur="5"
+    data-why="NEW bridge: Elena closes the lesson by saying what they found and what's next.">
+    <div class="in"><div class="quote"><div class="ph round"><span>ELENA</span></div><div><blockquote>"In the car at 22:58, out at 23:41, at the motel by 23:58. Now let's put that next to the store's alarm."</blockquote></div></div></div>
+  </div>
+  <div class="lnav"><a class="btn" href="#l3">Next: the alarm log →</a></div>
+</section>
+
+<!-- ================= LESSON 3 ================= -->
+<section class="lesson" id="l3" data-title="Merge: the trap" data-short="3">
+  <header class="lhead"><div class="in"><div class="k">Lesson 3 of 6 · Skill 2 of 3</div><h1>Merge: the trap</h1></div></header>
+
+  <div class="blk is-new" data-id="3.0" data-type="Image (case board)" data-cat="story" data-tag="new" data-dur="10" data-why="NEW bridge: the case board, with the two new facts pinned.">
+    <div class="in"><div class="board"><div class="eyebrow">Case board · what we know</div>
+      <div class="pins"><div class="pin"><small>The claim</small>"I've never been in his car."</div><div class="pin newpin"><small>New · Bluetooth</small>Phone in the car 22:58 – 23:41</div><div class="pin newpin"><small>New · Wi-Fi</small>Phone at the motel 23:58</div></div>
+      <div class="skills"><span class="did">1 · Read the table ✓</span><span class="now">2 · Merge</span><span>3 · Count</span></div></div></div>
+  </div>
+
+  <div class="blk alt is-chg" data-id="3.1" data-type="Quote" data-cat="story" data-tag="chg" data-dur="5" data-why="Hale is introduced here instead of in 1.3: name and role in the caption.">
+    <div class="in"><div class="quote"><div class="ph round"><span>HALE</span></div><div><blockquote>"Alarm company sent their log. Tell me that car was there when the door went."</blockquote><cite>Detective Hale · lead on the case</cite></div></div></div>
+  </div>
+
+  <div class="blk" data-id="3.2" data-type="Table" data-cat="explore" data-dur="10">
+    <div class="in"><div class="eyebrow">EXH-05 · Store alarm log</div>
+      <div class="tbl"><table><thead><tr><th>Time</th><th>Zone</th><th>Event</th></tr></thead><tbody id="alarmtbl"></tbody></table></div>
+      <p style="font-size:14px;color:var(--muted)">Times are local, from the alarm panel.</p></div>
+  </div>
+
+  <div class="blk alt is-new" data-id="3.2b" data-type="Image & text (diagram)" data-cat="explore" data-tag="new" data-dur="15"
+    data-why="NEW, 'con plastilina': what a merge is, in one picture, before they run one. It uses no case times on purpose, so it doesn't give the trap away.">
+    <div class="in"><h2 class="bh">What a merge does</h2>
+      <p>A merge lines up two lists and keeps what matches. Here: which alarm events happened <b>while</b> the phone was connected to the car?</p>
+      <div class="diag"><svg viewBox="0 0 640 110" width="100%" role="img" aria-label="A bar for the time the phone was in the car, and alarm events as ticks. The merge keeps the ticks inside the bar.">
+        <line class="axis" x1="20" y1="80" x2="620" y2="80"/>
+        <rect class="carbar" x="200" y="40" width="240" height="22" rx="4"/><text class="lbl" x="205" y="32">Phone in the car (list 1)</text>
+        <line class="alarm" x1="120" y1="70" x2="120" y2="90"/><line class="alarm" x1="260" y1="70" x2="260" y2="90"/><line class="alarm" x1="330" y1="70" x2="330" y2="90"/><line class="alarm" x1="520" y1="70" x2="520" y2="90"/>
+        <text x="20" y="106">Alarm events (list 2): the merge keeps the two inside the bar</text></svg></div></div>
+  </div>
+
+  <div class="blk" data-id="3.3" data-type="Code block · Sextant" data-cat="sextant" data-dur="135" data-why="Not scored. The trap: 0 rows, red glow, Elena's first-case confession, then a hand-fix of the line.">
+    <div class="in"><div data-sx="merge"></div></div>
+  </div>
+
+  <div class="blk alt cont" data-id="3.4" data-type="Continue" data-cat="nav" data-dur="0" data-needs="3.3">
+    <div class="in" style="align-items:center"><button class="btn contbtn" type="button" disabled>See what happened</button><small style="color:var(--muted)" data-lock>Finish the merge to continue.</small></div>
+  </div>
+
+  <div class="blk is-new" data-id="3.4b" data-type="Tabs (two diagrams)" data-cat="explore" data-tag="new" data-dur="20"
+    data-why="NEW, 'con plastilina': they see why it was 0. Two tabs, two pictures of the same night. Native Rise Tabs with one image in each.">
+    <div class="in"><h2 class="bh">See the five hours</h2>
+      <div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-tab="0">First run: two clocks</button><button role="tab" aria-selected="false" data-tab="1">Fixed: one clock</button></div>
+      <div data-pane="0"><svg viewBox="0 0 640 130" width="100%" role="img" aria-label="Car connection on world time sits at 03:58 to 04:41, far from the alarms at 23:19 to 23:26. No overlap.">
+        <line class="axis" x1="20" y1="90" x2="620" y2="90"/>
+        <g id="hours1"></g>
+        <line class="alarm" x1="134" y1="78" x2="134" y2="102"/><line class="alarm" x1="135" y1="78" x2="135" y2="102"/><line class="alarm" x1="136" y1="78" x2="136" y2="102"/><line class="alarm" x1="144" y1="78" x2="144" y2="102"/>
+        <text class="lbl" x="96" y="70">4 alarms, local time</text>
+        <rect class="carbar" x="532" y="40" width="62" height="20" rx="3"/><text class="lbl" x="420" y="32">Phone in car, world time</text>
+        <text class="lbl" x="250" y="124" style="fill:var(--bad)">No overlap → 0 rows</text></svg></div>
+      <div data-pane="1" hidden><svg viewBox="0 0 640 130" width="100%" role="img" aria-label="On one clock the car connection runs 22:58 to 23:41 and all four alarms fall inside it.">
+        <line class="axis" x1="20" y1="90" x2="620" y2="90"/>
+        <g id="hours2"></g>
+        <rect class="carbar" x="103" y="40" width="62" height="20" rx="3"/><text class="lbl" x="60" y="32">Phone in car 22:58 – 23:41</text>
+        <line class="alarm" x1="134" y1="78" x2="134" y2="102"/><line class="alarm" x1="135" y1="78" x2="135" y2="102"/><line class="alarm" x1="136" y1="78" x2="136" y2="102"/><line class="alarm" x1="144" y1="78" x2="144" y2="102"/>
+        <text class="lbl" x="250" y="124" style="fill:var(--ok)">All 4 alarms inside → 4 rows</text></svg></div>
+    </div>
+  </div>
+
+  <div class="blk alt" data-id="3.5" data-type="Knowledge check" data-cat="check" data-dur="15">
+    <div class="in"><div class="kc" data-ok="a" data-right="Two clocks, five hours apart. Put every source on one clock before you merge." data-wrong="The fix was five hours. Which two clocks were five hours apart?">
+      <div class="qn">QUESTION 01/01</div><p class="qt">Why did the first merge find nothing?</p>
+      <div class="opts">
+        <label class="opt"><input type="radio" name="kc35" value="a">The alarm log is in local time and the phone in world time, five hours apart</label>
+        <label class="opt"><input type="radio" name="kc35" value="b">The phone wasn't in the car</label>
+        <label class="opt"><input type="radio" name="kc35" value="c">The alarm panel's clock was wrong</label>
+        <label class="opt"><input type="radio" name="kc35" value="d">Bluetooth doesn't record at night</label>
+      </div><button class="submit" type="button" data-check>SUBMIT</button><div class="fb" hidden></div></div></div>
+  </div>
+
+  <div class="blk" data-id="3.6" data-type="Timeline" data-cat="explore" data-dur="15">
+    <div class="in"><h2 class="bh">The night, on one clock</h2>
+      <ol class="tl"><li class="car"><b>22:58:14</b> Phone connects to CAR AUDIO 7731</li><li class="al"><b>23:19:42</b> Side door opened</li><li class="al"><b>23:20:10</b> Motion, showroom</li><li class="al"><b>23:21:05</b> Glass break, display 3</li><li class="al"><b>23:26:30</b> Side door opened</li><li class="car"><b>23:41:37</b> Phone disconnects</li><li><b>23:58:40</b> Phone joins MOTEL-GUEST</li></ol></div>
+  </div>
+
+  <div class="blk alt" data-id="3.7" data-type="Scenario" data-cat="check" data-dur="30">
+    <div class="in"><div class="dlg" data-scn><div class="scene"><div class="who-img">HALE</div>
+      <div class="bubble"><div class="nm">DETECTIVE HALE</div><div class="say">"So Marsh was in the car. Write it up."</div>
+        <div class="resp">
+          <button type="button" data-r="Elena cuts in: &quot;Careful. It puts his phone in the car.&quot; Try again.">"Yes. The data puts him in the car."</button>
+          <button type="button" data-ok data-r="Hale: &quot;Fine. Then give me something a jury can't shrug off.&quot; Elena: &quot;How about a pattern?&quot;">"His phone was in the car. Who held it is your part of the case."</button>
+          <button type="button" data-r="Hale: &quot;Apple takes weeks. What do we have today?&quot; Try again.">"We can't say anything until Apple answers."</button>
+        </div><div class="fb" hidden></div></div></div></div></div>
+  </div>
+
+  <div class="blk is-new" data-id="3.8" data-type="Quote" data-cat="story" data-tag="new" data-dur="5" data-why="NEW bridge into Count.">
+    <div class="in"><div class="quote"><div class="ph round"><span>ELENA</span></div><div><blockquote>"One night could be a coincidence. Let's see if this phone already knows that car."</blockquote></div></div></div>
+  </div>
+  <div class="lnav"><a class="btn" href="#l4">Next: count the pattern →</a></div>
+</section>
+
+<!-- ================= LESSON 4 ================= -->
+<section class="lesson" id="l4" data-title="Count and conclude" data-short="4">
+  <header class="lhead"><div class="in"><div class="k">Lesson 4 of 6 · Skill 3 of 3 · scored</div><h1>Count and conclude</h1></div></header>
+
+  <div class="blk is-new" data-id="4.0" data-type="Image (case board)" data-cat="story" data-tag="new" data-dur="10" data-why="NEW bridge: the case board again.">
+    <div class="in"><div class="board"><div class="eyebrow">Case board · what we know</div>
+      <div class="pins"><div class="pin"><small>Bluetooth</small>Phone in the car 22:58 – 23:41</div><div class="pin"><small>Wi-Fi</small>Phone at the motel 23:58</div><div class="pin newpin"><small>New · Merge</small>All 4 break-in alarms fall inside the car connection</div></div>
+      <div class="skills"><span class="did">1 · Read ✓</span><span class="did">2 · Merge ✓</span><span class="now">3 · Count</span></div></div></div>
+  </div>
+
+  <div class="blk alt" data-id="4.1" data-type="Quote" data-cat="story" data-dur="5">
+    <div class="in"><div class="quote"><div class="ph round"><span>MARSH</span></div><div><blockquote>"I don't even know the guy. Met him this morning."</blockquote><cite>Leon Marsh · interview, Wed 4 Mar, 14:15</cite></div></div></div>
+  </div>
+  <div class="blk" data-id="4.2" data-type="Quote" data-cat="story" data-dur="10">
+    <div class="in"><div class="quote"><div class="ph round"><span>ELENA</span></div><div><blockquote>"Let's test that. If they met this morning, his phone shouldn't know Vance's car."</blockquote></div></div></div>
+  </div>
+
+  <div class="blk alt" data-id="4.3" data-type="Code block · Sextant" data-cat="sextant" data-dur="120" data-why="Scored, 3 points. In the new order you pick the filter on the 30-day count first, then edit the date to the last 7 days (needs your OK).">
+    <div class="in"><div data-sx="count"></div></div>
+  </div>
+
+  <div class="blk" data-id="4.4" data-type="Chart" data-cat="explore" data-dur="10">
+    <div class="in"><h2 class="bh">Marsh's phone and CAR AUDIO 7731: connections per week</h2>
+      <div class="bars"><div class="bar"><span>Week of 2 Feb</span><i style="width:53.8%"></i><b>7</b></div><div class="bar"><span>Week of 9 Feb</span><i style="width:69.2%"></i><b>9</b></div><div class="bar"><span>Week of 16 Feb</span><i style="width:69.2%"></i><b>9</b></div><div class="bar"><span>Week of 23 Feb</span><i style="width:100%"></i><b>13</b></div><div class="bar"><span>2–3 Mar (2 days)</span><i style="width:23.1%"></i><b>3</b></div></div>
+      <p style="font-size:14px;color:var(--muted)">41 connections in 30 days.</p></div>
+  </div>
+
+  <div class="blk alt" data-id="4.5" data-type="Sorting activity" data-cat="check" data-dur="30">
+    <div class="in" data-sort><p><b>Sort each card.</b> Tap a card, then tap a pile.</p>
+      <div class="cards">
+        <button class="scard" type="button" data-p="0">The phone was linked to CAR AUDIO 7731 from 22:58 to 23:41</button>
+        <button class="scard" type="button" data-p="1">Marsh was holding his phone</button>
+        <button class="scard" type="button" data-p="0">The phone joined MOTEL-GUEST at 23:58</button>
+        <button class="scard" type="button" data-p="1">Marsh stayed in Room 112</button>
+        <button class="scard" type="button" data-p="0">The phone connected to that stereo 41 times in 30 days</button>
+        <button class="scard" type="button" data-p="1">Marsh broke into the store</button>
+      </div>
+      <div class="piles"><div class="pile" data-pile="0" role="button" tabindex="0"><h3>The records show it</h3></div><div class="pile" data-pile="1" role="button" tabindex="0"><h3>The records can't show it</h3></div></div>
+      <div class="fb" hidden></div></div>
+  </div>
+
+  <div class="blk" data-id="4.6" data-type="Code block · Sextant" data-cat="sextant" data-dur="60" data-why="Scored, 4 points, styled as Elena's report form. Rule to confirm: a wrong first answer costs 1 point, and so does the hint.">
+    <div class="in"><div data-sx="conclude"></div></div>
+  </div>
+
+  <div class="blk alt" data-id="4.7" data-type="Text" data-cat="story" data-dur="20">
+    <div class="in"><div class="eyebrow">Your finding, worded for court</div>
+      <p class="lead">The blue iPhone, exhibit EXH-02, was connected to the car stereo CAR AUDIO 7731 from 22:58 to 23:41 on 3 March 2026, the window that covers all four break-in alarms. It connected to that same stereo 41 times on 19 days in the 30 days before.</p>
+      <p style="color:var(--muted)">What it does not say: who was holding the phone, who entered the store, or where Vance was.</p></div>
+  </div>
+  <div class="lnav"><a class="btn" href="#l5">Next →</a></div>
+</section>
+
+<!-- ================= LESSON 5 ================= -->
+<section class="lesson" id="l5" data-title="What's next" data-short="5">
+  <header class="lhead"><div class="in"><div class="k">Lesson 5 of 6</div><h1>What's next</h1></div></header>
+  <div class="blk" data-id="5.1" data-type="Video" data-cat="watch" data-dur="30">
+    <div class="in"><button class="video" type="button" data-video="5.1" aria-label="Play the cliffhanger clip"><span class="play">▶</span><span class="cap">Cliffhanger · CAR AUDIO 2290 lights up, 4 Mar 00:31</span><span class="bar2">▶ <i></i> 0:00 / 0:30 · CC</span></button>
+      <p style="font-size:14px;color:var(--muted)">Elena (V.O.): "That second car. Three Sundays in February. And once more at 00:31, the night of the break-in, half an hour after Marsh's phone reached the motel. Six minutes." Hale: "And the watches are still missing."</p></div>
+  </div>
+  <div class="blk alt" data-id="5.2" data-type="Text on image" data-cat="story" data-dur="5">
+    <div class="in"><div class="ph wide"><span>EPISODE 2 · Where did the watches go? · a scored case, 8–10 minutes</span></div></div>
+  </div>
+  <div class="blk" data-id="5.3" data-type="Buttons" data-cat="nav" data-dur="10">
+    <div class="in" style="flex-direction:row;flex-wrap:wrap;gap:10px"><a class="btn ghost" href="#l3">Replay the trap</a><a class="btn ghost" href="#l6">Field notes</a><a class="btn" href="#cover">Build one for your topic</a></div>
+  </div>
+</section>
+
+<!-- ================= LESSON 6 ================= -->
+<section class="lesson" id="l6" data-title="Field notes" data-short="6">
+  <header class="lhead"><div class="in"><div class="k">Lesson 6 of 6 · reference</div><h1>Field notes</h1></div></header>
+  <div class="blk" data-id="6.1" data-type="Accordion" data-cat="explore" data-dur="0">
+    <div class="in"><details class="acc"><summary>What this means for patrol</summary><p style="color:var(--muted)">From source pack Part D (copied in the build).</p></details>
+      <details class="acc"><summary>What detectives should ask the examiner</summary><p style="color:var(--muted)">From source pack Part E.</p></details>
+      <details class="acc"><summary>Five common mistakes</summary><p style="color:var(--muted)">From source pack Part E.</p></details></div>
+  </div>
+  <div class="blk alt" data-id="6.2" data-type="Tabs" data-cat="explore" data-dur="0"><div class="in"><p>What each record can and can't show: Bluetooth · Paired devices · Wi-Fi · Messages · Carrier records <i style="color:var(--muted)">(tabs, Part E5)</i></p></div></div>
+  <div class="blk" data-id="6.3" data-type="Flashcard grid" data-cat="explore" data-dur="0"><div class="in"><p>Ten key terms: UTC · Epoch · Local time · Bluetooth address · Extraction · Fingerprint (hash) · WHERE · JOIN · COUNT / GROUP BY · LIKE</p></div></div>
+  <div class="blk alt" data-id="6.4" data-type="Accordion" data-cat="explore" data-dur="0"><div class="in"><p>Full glossary, 32 terms in four groups (Part F).</p></div></div>
+</section>
+
+</main>
+</div>
+
+<script>
+const CASE = {"bluetooth":[["Leon's AirPods",791723056,791726013],["LIVING ROOM SPEAKER",791776306,791781632],["Leon's AirPods",791810277,791812246],["CAR AUDIO 7731",791818427,791819538],["CAR AUDIO 7731",791837367,791839455],["Leon's AirPods",791898559,791900249],["CAR AUDIO 7731",791905266,791907563],["CAR AUDIO 7731",791922194,791925122],["Leon's AirPods",791982668,791984779],["LIVING ROOM SPEAKER",792031582,792035107],["Leon's AirPods",792069652,792071481],["CAR AUDIO 7731",792078532,792080614],["CAR AUDIO 7731",792094802,792095549],["CAR AUDIO 7731",792112753,792114188],["LIVING ROOM SPEAKER",792123681,792126779],["Leon's AirPods",792156061,792158837],["LIVING ROOM SPEAKER",792210265,792213182],["Leon's AirPods",792242232,792243527],["CAR AUDIO 2290",792259332,792260577],["LIVING ROOM SPEAKER",792297490,792301665],["CAR AUDIO 7731",792336503,792338471],["CAR AUDIO 7731",792354987,792357915],["Leon's AirPods",792416844,792419499],["CAR AUDIO 7731",792422286,792424732],["CAR AUDIO 7731",792439700,792441694],["Leon's AirPods",792500791,792502225],["CAR AUDIO 7731",792596984,792598782],["CAR AUDIO 7731",792613952,792615764],["CAR AUDIO 7731",792631533,792633810],["Leon's AirPods",792673398,792676007],["CAR AUDIO 7731",792682955,792684499],["CAR AUDIO 7731",792698979,792701816],["LIVING ROOM SPEAKER",792728382,792735385],["Leon's AirPods",792761293,792763194],["Leon's AirPods",792846054,792848246],["CAR AUDIO 2290",792864340,792866183],["LIVING ROOM SPEAKER",792901880,792908793],["Leon's AirPods",792933431,792935526],["CAR AUDIO 7731",792941722,792944631],["CAR AUDIO 7731",792959441,792962066],["Leon's AirPods",793019891,793021981],["CAR AUDIO 7731",793026843,793029782],["CAR AUDIO 7731",793045317,793046661],["LIVING ROOM SPEAKER",793068498,793075026],["Leon's AirPods",793106172,793109074],["Leon's AirPods",793191646,793193849],["CAR AUDIO 7731",793201431,793203233],["CAR AUDIO 7731",793219771,793222357],["CAR AUDIO 7731",793236652,793237635],["LIVING ROOM SPEAKER",793240732,793246793],["CAR AUDIO 7731",793285889,793287619],["CAR AUDIO 7731",793304330,793306307],["Leon's AirPods",793450997,793453413],["CAR AUDIO 2290",793467978,793469256],["LIVING ROOM SPEAKER",793499875,793505295],["CAR AUDIO 7731",793545729,793547775],["CAR AUDIO 7731",793562925,793564870],["Leon's AirPods",793626777,793628324],["CAR AUDIO 7731",793631617,793633134],["CAR AUDIO 7731",793651127,793652589],["LIVING ROOM SPEAKER",793677945,793684645],["Leon's AirPods",793710508,793712485],["LIVING ROOM SPEAKER",793767433,793773029],["Leon's AirPods",793797472,793799292],["CAR AUDIO 7731",793806130,793808688],["CAR AUDIO 7731",793823793,793825115],["Leon's Apple Watch",793838530,793843533],["CAR AUDIO 7731",793841800,793843299],["Leon's Apple Watch",793843862,793855908],["Leon's AirPods",793884957,793887357],["Leon's Apple Watch",793885893,793906819],["CAR AUDIO 7731",793890781,793892001],["Leon's Apple Watch",793907927,793923730],["CAR AUDIO 7731",793909358,793911228],["Leon's Apple Watch",793923891,793941245],["Leon's Apple Watch",793975100,794002364],["CAR AUDIO 7731",793977101,793979161],["CAR AUDIO 7731",793996568,793997580],["Leon's Apple Watch",794003402,794030561],["LIVING ROOM SPEAKER",794018829,794025142],["Leon's Apple Watch",794063112,794082428],["CAR AUDIO 7731",794063716,794065302],["CAR AUDIO 7731",794081942,794083712],["Leon's Apple Watch",794082580,794116076],["Leon's AirPods",794099525,794102620],["Leon's Apple Watch",794144649,794160195],["CAR AUDIO 7731",794155651,794157672],["Leon's Apple Watch",794161236,794180882],["CAR AUDIO 7731",794170200,794173117],["Leon's Apple Watch",794180970,794199510],["LIVING ROOM SPEAKER",794189267,794194380],["Leon's Apple Watch",794231865,794254521],["Leon's Apple Watch",794254618,794278337],["CAR AUDIO 7731",794289494,794292097],["CAR AUDIO 2290",794295072,794295468]],"wifi":[["HOME-NET-5G",785379831,794273467],["CITY-LIBRARY-FREE",789936022,793393329],["IRONWORKS-GYM",783861165,793886310],["MOTEL-GUEST",794293120,794293120]],"alarm":[["2026-03-03 21:14:55","System","Armed by staff (closing)"],["2026-03-03 23:19:42","Zone 4","Side door opened"],["2026-03-03 23:20:10","Zone 2","Motion, showroom"],["2026-03-03 23:21:05","Zone 3","Glass break, display 3"],["2026-03-03 23:26:30","Zone 4","Side door opened"],["2026-03-03 23:58:12","System","Disarmed by keyholder"]],"messages_n":8};
+const EPOCH = 978307200;
+function tfmt(x, h){ return new Date((x + EPOCH + h*3600)*1000).toISOString().slice(0,19).replace("T"," "); }
+function el(tag, attrs, ...kids){
+  const n = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs||{})){ if (v==null) continue; if (k==="class") n.className=v; else if (k==="text") n.textContent=v; else if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k,v); }
+  for (const k of kids) if (k!=null && k!==false) n.append(k);
+  return n;
+}
+const norm = s => String(s||"").toUpperCase().replace(/\s+/g," ").trim();
+
+/* ---------- progress & done ---------- */
+const done = new Set();
+function markDone(id){
+  if (done.has(id)) return; done.add(id);
+  document.querySelectorAll('[data-needs="'+id+'"]').forEach(n => {
+    const b = n.matches(".cont") ? n.querySelector(".contbtn") : n;
+    if (b){ b.disabled = false; b.removeAttribute("aria-disabled"); b.classList.remove("locked"); }
+    const lk = n.querySelector && n.querySelector("[data-lock]"); if (lk) lk.hidden = true;
+  });
+  updateMenu();
+}
+
+/* ---------- lessons & routing ---------- */
+const lessons = [...document.querySelectorAll(".lesson")];
+const visited = new Set();
+const SECS = {l1:"INTRODUCTION", l2:"THE INVESTIGATION", l5:"AFTER THE CASE"};
+function lessonDur(L){ return [...L.querySelectorAll(".blk")].reduce((a,b)=>a+(+b.dataset.dur||0),0); }
+function buildMenu(){
+  const m = document.getElementById("menu"), toc = document.getElementById("toc");
+  lessons.filter(L => L.id!=="cover").forEach((L,i) => {
+    if (SECS[L.id]){ m.append(el("li",{class:"sec",text:SECS[L.id]})); toc.append(el("li",{class:"sec",text:SECS[L.id]})); }
+    const d = lessonDur(L);
+    m.append(el("li",{"data-l":L.id}, el("a",{href:"#"+L.id}, el("span",{class:"ico"}), el("span",{class:"t"}, L.dataset.title, el("small",{text: d ? "~"+fmtD(d) : "reference"})), el("span",{class:"ring"}))));
+    toc.append(el("li",{}, el("a",{href:"#"+L.id}, el("span",{class:"n",text:String(i+1).padStart(2,"0")}), el("span",{class:"ttl",text:L.dataset.title}), el("small",{text: d ? "~"+fmtD(d) : "reference"}))));
+  });
+}
+function fmtD(s){ return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+function route(){
+  const id = (location.hash||"#cover").slice(1);
+  const L = lessons.find(l => l.id===id) || lessons[0];
+  lessons.forEach(l => l.classList.toggle("on", l===L));
+  current = L.id; visited.add(L.id); updateMenu();
+  const n = lessons.filter(l=>l.id!=="cover").indexOf(L);
+  const tt = document.getElementById("tbtitle"); tt.textContent = "";
+  if (L.id==="cover") tt.append(el("b",{text:"The Halden & Co. Break-in"})); else tt.append("Lesson "+(n+1)+" of 6 · ", el("b",{text:L.dataset.title}));
+  document.body.classList.remove("nav-open");
+  window.scrollTo(0,0); onScroll();
+}
+let current = "cover";
+function updateMenu(){
+  document.querySelectorAll("#menu li[data-l]").forEach(li => { li.classList.toggle("cur", li.dataset.l===current); li.classList.toggle("done", visited.has(li.dataset.l) && li.dataset.l!==current); li.querySelector("a").setAttribute("aria-current", li.dataset.l===current ? "page" : "false"); const r = li.querySelector(".ring"); r.textContent = li.classList.contains("done") ? "✓" : ""; });
+  const n = [...visited].filter(v => v!=="cover").length, pct = Math.round(n/6*100);
+  document.getElementById("progbar").style.width = pct+"%";
+  document.getElementById("pct").textContent = pct+"% COMPLETE";
+}
+function onScroll(){ const h = document.documentElement.scrollHeight - innerHeight; document.getElementById("tbprog").style.width = (h>0 ? Math.min(100, scrollY/h*100) : 0)+"%"; }
+addEventListener("scroll", onScroll, {passive:true});
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[data-needs]");
+  if (a && !done.has(a.dataset.needs) && !document.getElementById("sw-unlock").checked){ e.preventDefault(); const p = a.parentNode.querySelector(".lockmsg") || a.parentNode.appendChild(el("small",{class:"lockmsg",style:"display:block;margin-top:8px;color:var(--muted);text-align:center"})); p.textContent = "Open all three markers on the Sextant screen first."; }
+});
+window.addEventListener("hashchange", route);
+
+/* ---------- annotations & running clock ---------- */
+const CATNAME = {watch:"Watch",story:"Story",explore:"Read & explore",check:"Practice",sextant:"Sextant",nav:"Navigation"};
+function annotate(){
+  let t = 0, newT = 0, total = 0;
+  document.querySelectorAll(".blk").forEach(b => {
+    const d = +b.dataset.dur || 0;
+    const inner = b.querySelector(".in");
+    const ann = el("div",{class:"ann"},
+      el("span",{class:"id",text: b.dataset.id==="0"?"Cover":b.dataset.id}),
+      el("span",{class:"pill c-"+b.dataset.cat,text:"Rise: "+b.dataset.type}),
+      b.dataset.tag==="new" ? el("span",{class:"pill t-new",text:"NEW"}) : null,
+      b.dataset.tag==="chg" ? el("span",{class:"pill t-chg",text:"CHANGED"}) : null,
+      b.closest("#l6") ? el("span",{class:"clock",text:"not timed"}) : el("span",{class:"clock",text:"at "+fmtD(t)+(d?" · ~"+fmtD(d):"")}));
+    if (!b.closest("#l6")){ t += d; total += d; if (b.dataset.tag==="new") newT += d; }
+    const nb = el("button",{class:"nbtn",type:"button",text:"Note"}); ann.append(nb);
+    inner.prepend(ann);
+    if (b.dataset.why) ann.after(el("p",{class:"why",text:b.dataset.why}));
+    const ta = el("textarea",{id:"note-"+b.dataset.id.replace(/\W/g,"_"),placeholder:"Your note on "+(b.dataset.id==="0"?"the cover":"block "+b.dataset.id)+"…","aria-label":"Note on block "+b.dataset.id});
+    const st = el("small");
+    const box = el("div",{class:"notebox"}, ta, st); box.hidden = true;
+    (b.querySelector(".why")||ann).after(box);
+    nb.addEventListener("click", () => { box.hidden = !box.hidden; if (!box.hidden) ta.focus(); });
+    let tm; ta.addEventListener("input", () => { clearTimeout(tm); st.textContent="…"; tm = setTimeout(()=>saveNote(b.dataset.id, ta.value.trim(), st, nb), 900); });
+    noteUI[b.dataset.id] = {ta, st, nb, box};
+    b.setAttribute("data-comment-target","");
+  });
+  document.getElementById("runtime").textContent = "Runtime ~"+fmtD(total)+" (lessons 1–5), of which ~"+fmtD(newT)+" is new bridge and picture blocks.";
+}
+
+/* ---------- gating (Continue) ---------- */
+function gate(){
+  const unlock = document.getElementById("sw-unlock").checked;
+  lessons.forEach(L => {
+    let hide = false;
+    L.querySelectorAll(".blk").forEach(b => {
+      b.classList.toggle("gated", hide && !unlock);
+      if (b.classList.contains("cont") && !b.dataset.opened) hide = true;
+    });
+  });
+}
+document.querySelectorAll(".cont .contbtn").forEach(btn => btn.addEventListener("click", () => {
+  const blk = btn.closest(".blk"); blk.dataset.opened = "1"; btn.textContent = "✓ " + btn.textContent; btn.disabled = true; gate();
+  const nx = blk.nextElementSibling; if (nx) nx.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+}));
+
+/* ---------- native-block behaviors ---------- */
+document.querySelectorAll("[data-video]").forEach(v => v.addEventListener("click", () => { v.querySelector(".play").textContent = "✓"; v.querySelector(".cap").textContent = "Watched (no video in the prototype)"; markDone(v.dataset.video); }));
+document.querySelectorAll("[data-process]").forEach(p => {
+  const steps = [...p.querySelectorAll("[data-step]")]; let i = 0;
+  const dots = p.querySelector("[data-dots]"); for (let k=1;k<steps.length;k++) dots.append(el("i"));
+  const prev = p.querySelector("[data-prev]"), next = p.querySelector("[data-next]");
+  const show = () => { steps.forEach((s,k)=>s.hidden = k!==i); prev.hidden = next.hidden = dots.hidden = i===0; prev.disabled = i<=1; [...dots.children].forEach((d,k)=>d.classList.toggle("on", k<i)); next.disabled = i===steps.length-1; if (i===steps.length-1) markDone(p.closest(".blk").dataset.id); };
+  p.querySelector("[data-start]").addEventListener("click", ()=>{ i=1; show(); });
+  prev.addEventListener("click", ()=>{ if(i>1){i--;show();} });
+  next.addEventListener("click", ()=>{ if(i<steps.length-1){i++;show();} });
+  show();
+});
+(function(){
+  const lg = document.querySelector("[data-lg]"); const pop = lg.parentNode.querySelector("[data-pop]");
+  const T = [["Evidence list","Everything from Marsh's phone, sorted into tables. Bluetooth, Wi-Fi, messages."],["Data table","One row for each event. One column for each fact about it."],["Sentence builder","You don't write code from a blank page. You build a sentence, and Sextant writes the SQL. Same color, same number. And you can read every line, so you can check what the tool did."]];
+  const seen = new Set();
+  lg.querySelectorAll(".marker").forEach(m => m.addEventListener("click", () => { const k = +m.dataset.m; seen.add(k); m.classList.add("seen"); pop.hidden = false; pop.textContent = ""; pop.append(el("b",{text:(k+1)+" · "+T[k][0]}), el("p",{text:T[k][1]})); if (seen.size===3) markDone("1.7"); }));
+})();
+document.querySelectorAll(".flip").forEach(f => f.addEventListener("click", () => f.classList.toggle("on")));
+document.querySelectorAll(".kc").forEach(k => k.querySelector("[data-check]").addEventListener("click", () => {
+  const v = (k.querySelector("input:checked")||{}).value; const fb = k.querySelector(".fb"); if (!v) return;
+  fb.hidden = false; const ok = v===k.dataset.ok; fb.className = "fb "+(ok?"ok":"bad"); fb.textContent = ok ? k.dataset.right : k.dataset.wrong;
+}));
+document.querySelectorAll("[data-scn]").forEach(s => s.querySelectorAll("[data-r]").forEach(o => o.addEventListener("click", () => { const fb = s.querySelector(".fb"); fb.hidden=false; fb.className = "fb "+(o.hasAttribute("data-ok")?"ok":"bad"); fb.textContent = o.dataset.r; })));
+document.querySelectorAll("[data-sort]").forEach(s => {
+  let sel = null; const fb = s.querySelector(".fb");
+  s.querySelectorAll(".scard").forEach(c => c.addEventListener("click", () => { if (c.closest(".pile")) { s.querySelector(".cards").append(c); c.classList.remove("ok","bad"); } s.querySelectorAll(".scard").forEach(x=>x.setAttribute("aria-pressed","false")); sel = c; c.setAttribute("aria-pressed","true"); }));
+  s.querySelectorAll(".pile").forEach(p => { const drop = () => { if (!sel) return; sel.setAttribute("aria-pressed","false"); p.append(sel); sel.classList.toggle("ok", sel.dataset.p===p.dataset.pile); sel.classList.toggle("bad", sel.dataset.p!==p.dataset.pile); sel = null;
+      const placed = s.querySelectorAll(".pile .scard"); if (placed.length===6){ const right = s.querySelectorAll(".pile .scard.ok").length; fb.hidden=false; fb.className="fb "+(right===6?"ok":"bad"); fb.textContent = right===6 ? "All six right. Records show what the phone did. People are a separate question." : right+" of 6 right. Tap a red card to take it back."; } };
+    p.addEventListener("click", e => { if (!e.target.closest(".scard")) drop(); }); p.addEventListener("keydown", e => { if (e.key==="Enter"||e.key===" "){ e.preventDefault(); drop(); } }); });
+});
+document.querySelectorAll("[data-tab]").forEach(t => t.addEventListener("click", () => { const box = t.closest(".in"); box.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-selected", x===t)); box.querySelectorAll("[data-pane]").forEach(p=>p.hidden = p.dataset.pane!==t.dataset.tab); }));
+(function(){
+  const tb = document.getElementById("alarmtbl");
+  CASE.alarm.forEach(r => tb.append(el("tr",{}, el("td",{class:"m",text:r[0].slice(11)}), el("td",{text:r[1]}), el("td",{text:r[2]}))));
+  for (const gid of ["hours1","hours2"]){ const g = document.getElementById(gid);
+    ["22:00","23:00","00:00","01:00","02:00","03:00","04:00","05:00"].forEach((h,i) => { const x = 20 + i*600/7; g.insertAdjacentHTML("beforeend", `<line class="axis" x1="${x}" y1="86" x2="${x}" y2="94"/><text x="${x-14}" y="110">${h}</text>`); }); }
+})();
+
+/* ---------- score ---------- */
+const SC = {turn:null, count:null, conclude:null};
+function setScore(k,v){ SC[k]=v; const tot = Object.values(SC).reduce((a,b)=>a+(b||0),0);
+  document.getElementById("score").textContent = tot+" / 10";
+  document.getElementById("scoreparts").textContent = "Your turn "+(SC.turn??"–")+"/3 · Count "+(SC.count??"–")+"/3 · Conclude "+(SC.conclude??"–")+"/4"; }
+
+/* ---------- Sextant shell ---------- */
+function Sextant(host, opts){
+  const s = {};
+  s.root = el("div",{class:"sx"});
+  s.top = el("div",{class:"sx-top"}, el("span",{}, el("b",{text:"SEXTANT"})," · case PCPD-26-03117 · EXH-02"), el("span",{text:opts.mode}));
+  s.task = el("div",{class:"sx-task"});
+  s.ev = el("aside",{class:"sx-ev"}, el("h4",{text:"EVIDENCE"}));
+  s.evBtns = {};
+  for (const [name,n] of [["bluetooth",95],["wifi",4],["messages",CASE.messages_n],["alarm (EXH-05)",6]]){
+    if (opts.tables && !opts.tables.includes(name)) continue;
+    const b = el("button",{type:"button"}, name, el("small",{text:n}));
+    b.addEventListener("click", () => s.onTable && s.onTable(name));
+    s.ev.append(b); s.evBtns[name]=b;
+  }
+  s.builder = el("div",{class:"sx-builder"});
+  s.sql = el("pre",{class:"sx-sql","aria-label":"SQL the builder wrote"});
+  s.ctrl = el("div",{class:"sx-ctrl"});
+  s.res = el("div",{class:"sx-res","aria-live":"polite"});
+  s.main = el("div",{class:"sx-main"}, s.builder, s.sql, s.ctrl, s.res);
+  s.elText = el("div",{class:"txt"});
+  s.helpBtn = el("button",{class:"help",type:"button",text:opts.scored?"Ask Elena (−1)":"Help"});
+  s.score = el("div",{class:"sx-score"});
+  s.root.append(s.top, s.task, el("div",{class:"sx-body"}, s.ev, s.main), el("div",{class:"sx-el"}, el("div",{class:"av",text:"ER"}), s.elText, s.helpBtn));
+  if (opts.scored) s.task.after(el("div",{style:"padding:6px 14px;border-bottom:1px solid var(--sx-line)"}, s.score));
+  host.append(s.root);
+  s.setTask = (n, txt) => { s.task.textContent=""; s.task.append(el("span",{class:"stp",text:n}), el("span",{text:txt})); };
+  s.say = (txt, voiced) => { s.elText.textContent=""; s.elText.append(el("small",{text: voiced===false ? "ELENA" : "ELENA · voiced"}), el("span",{text:txt})); };
+  s.chips = list => { s.builder.textContent=""; if (!list.length){ s.builder.append(el("span",{class:"empty",text:"Sentence builder: pick a table to start."})); return; } list.forEach(c => s.builder.append(c)); };
+  s.chip = (k, ...kids) => el("span",{class:"chipk k"+k}, el("span",{class:"n",text:k}), ...kids);
+  s.setSQL = lines => { s.sql.textContent=""; lines.forEach(([k,txt]) => { const ln = el("span",{class:"ln","data-k":k||""}); if (typeof txt==="string") ln.textContent = txt; else ln.append(txt); s.sql.append(ln); }); s.sql.hidden = !lines.length; };
+  s.table = (cols, rows, note, hlFn, limit) => {
+    s.res.classList.remove("red"); s.res.textContent="";
+    s.res.append(el("div",{class:"rhead"}, el("span",{text: rows.length+" row"+(rows.length===1?"":"s")}), el("span",{text:note||""})));
+    const tb = el("tbody");
+    rows.slice(0, limit||8).forEach(r => tb.append(el("tr",{class: hlFn&&hlFn(r)?"hl":null}, ...r.map(v=>el("td",{text:v})))));
+    s.res.append(el("table",{}, el("thead",{}, el("tr",{}, ...cols.map(c=>el("th",{text:c})))), tb));
+    if (rows.length > (limit||8)) s.res.append(el("div",{class:"hint0",text:"… "+(rows.length-(limit||8))+" more rows"}));
+  };
+  s.empty = txt => { s.res.classList.remove("red"); s.res.textContent=""; s.res.append(el("div",{class:"hint0",text:txt})); };
+  s.zero = () => { s.res.textContent=""; s.res.classList.add("red"); s.res.append(el("div",{class:"rhead"}, el("span",{text:"0 rows"}), el("span",{text:"query ran without errors"})), el("div",{class:"zero",text:"0 rows"})); };
+  s.actTable = name => Object.entries(s.evBtns).forEach(([n,b]) => b.classList.toggle("act", n===name));
+  s.clearGlow = () => s.root.querySelectorAll(".glow").forEach(x=>x.classList.remove("glow"));
+  return s;
+}
+
+/* ===== Scene: Show me (2.3) ===== */
+function sceneShowMe(host){
+  const s = Sextant(host, {mode:"PRACTICE · not scored", tables:["bluetooth","wifi","messages"]});
+  let step = "a", device = "", help = 0;
+  const bt = CASE.bluetooth;
+  const HINTS = {
+    a:["Cars connect over Bluetooth. Which table would hold that?", ()=>s.evBtns.bluetooth, "Click bluetooth in the evidence list."],
+    b:["Type the stereo's name exactly as the screen in EXH-03 showed it.", ()=>s.builder.querySelector("input"), "Type CAR AUDIO 7731 in the yellow field, then Run."],
+    c:["The times are still raw seconds. One chip makes them readable.", ()=>s.ctrl.querySelector(".addchip"), "Click + ④ in local time."],
+    d:["Forty-one rows, but we only care about one night.", ()=>s.ctrl.querySelector(".addchip"), "Click + ⑤ on 3 March 2026."]
+  };
+  s.helpBtn.addEventListener("click", () => {
+    const h = HINTS[step]; if (!h) return; help = Math.min(help+1, 3); s.clearGlow();
+    if (help===1) s.say("Nudge: "+h[0]);
+    if (help===2){ const t = h[1](); if (t) t.classList.add("glow"); s.say("Look at the glowing part."); }
+    if (help===3){ const t = h[1](); if (t) t.classList.add("glow"); s.say("Here's the move: "+h[2]); }
+  });
+  function go(st){ step = st; help = 0; s.onTable = null; s.clearGlow(); render(); }
+  function rows(local, onlyNight){
+    let r = bt.filter(x => norm(x[0])===norm(device));
+    if (onlyNight) r = r.filter(x => tfmt(x[1],-5).startsWith("2026-03-03"));
+    return r.map(x => [x[0], local? tfmt(x[1],-5) : String(x[1]), local? tfmt(x[2],-5) : String(x[2])]);
+  }
+  const localExpr = c => "datetime("+c+" + 978307200, 'unixepoch', '-5 hours')";
+  function render(){
+    s.ctrl.textContent = "";
+    if (step==="a"){
+      s.setTask("Step 1 of 4","Open the table that holds car connections.");
+      s.chips([]); s.setSQL([]); s.empty("Pick a table in the evidence list.");
+      s.say("Pick a table on the left. Cars connect to phones by Bluetooth.");
+      s.onTable = name => { s.actTable(name);
+        if (name!=="bluetooth"){ s.say(name==="wifi" ? "That's Wi-Fi networks. Cars connect by Bluetooth." : "Messages are texts. We're after the car."); return; }
+        s.table(["device","connected","disconnected"], bt.map(x=>[x[0],String(x[1]),String(x[2])]), "raw, as the phone stored it");
+        s.say("Ninety-five connections in a month. Earbuds, a watch, a speaker, a car. See the numbers under 'connected'? That's the time.");
+        s.ctrl.textContent = ""; s.ctrl.append(el("button",{class:"sxbtn",type:"button",text:"Next step →",onclick:()=>go("b")}));
+      };
+    }
+    if (step==="b"){
+      s.setTask("Step 2 of 4","Find the car. Type the stereo's name and run.");
+      const inp = el("input",{type:"text",placeholder:"type a name…","aria-label":"Device name"});
+      s.chips([s.chip(1,"Show device, connected, disconnected"), s.chip(2,"from bluetooth"), s.chip(3,"where device is ", inp)]);
+      const sqlIn = el("span",{text:"'…'"});
+      s.setSQL([[1,"SELECT device, connected, disconnected"],[2,"FROM bluetooth"],[3,el("span",{},"WHERE device = ", sqlIn)]]);
+      inp.addEventListener("input", ()=> sqlIn.textContent = "'"+inp.value+"'");
+      const run = el("button",{class:"sxbtn",type:"button",text:"▶ Run"});
+      const next = el("button",{class:"sxbtn",type:"button",text:"Next step →",onclick:()=>go("c")}); next.hidden = true;
+      run.addEventListener("click", () => {
+        const v = norm(inp.value); device = inp.value;
+        if (v==="CAR AUDIO 7731"){ s.table(["device","connected","disconnected"], rows(false), "raw times"); s.say("That's the car. Forty-one connections. But nobody in court reads seven hundred and ninety-four million seconds."); next.hidden=false; run.disabled = true; device="CAR AUDIO 7731"; }
+        else if (v==="7731"){ s.empty("0 rows"); s.say("Close. Use the full name, exactly as the stereo shows it."); }
+        else if (v.replace(/\W/g,"")==="LKD4K7"){ s.empty("0 rows"); s.say("That's the plate. The phone never sees the plate, only the stereo's name."); }
+        else { s.empty("0 rows"); s.say("No device by that name. Check EXH-03: what did the stereo screen say?"); }
+      });
+      s.ctrl.append(run, next);
+      s.say("Now the builder. Type the stereo's name in chip 3. Watch the SQL panel write the same line, same color, same number.");
+      s.empty("Run the query to see rows.");
+    }
+    if (step==="c"){
+      s.setTask("Step 3 of 4","Make the time readable.");
+      s.chips([s.chip(1,"Show device, connected, disconnected"), s.chip(2,"from bluetooth"), s.chip(3,"where device is CAR AUDIO 7731")]);
+      s.setSQL([[1,"SELECT device, connected, disconnected"],[2,"FROM bluetooth"],[3,"WHERE device = 'CAR AUDIO 7731'"]]);
+      const add = el("button",{class:"addchip",type:"button",text:"+ ④ in local time"});
+      add.addEventListener("click", () => {
+        s.chips([s.chip(1,"Show device, connected, disconnected"), s.chip(2,"from bluetooth"), s.chip(3,"where device is CAR AUDIO 7731"), s.chip(4,"in local time")]);
+        s.setSQL([[1,"SELECT device,"],[4,"  "+localExpr("connected")+","],[4,"  "+localExpr("disconnected")],[2,"FROM bluetooth"],[3,"WHERE device = 'CAR AUDIO 7731'"]]);
+        s.table(["device","connected (local)","disconnected (local)"], rows(true), "Port Calder time");
+        s.say("Two fixes in one. First it turns the count into a date. Then it takes off five hours. Phones keep world time, called UTC, and Port Calder is five hours behind it in winter.");
+        s.ctrl.textContent=""; s.ctrl.append(el("button",{class:"sxbtn",type:"button",text:"Next step →",onclick:()=>go("d")}));
+      });
+      s.ctrl.append(add);
+      s.table(["device","connected","disconnected"], rows(false), "raw times");
+      s.say("Forty-one rows of seconds. Add chip 4 to turn them into a time.");
+    }
+    if (step==="d"){
+      s.setTask("Step 4 of 4","Narrow it to the night of the break-in.");
+      const base = [s.chip(1,"Show device, connected, disconnected"), s.chip(2,"from bluetooth"), s.chip(3,"where device is CAR AUDIO 7731"), s.chip(4,"in local time")];
+      s.chips(base);
+      const sqlBase = [[1,"SELECT device,"],[4,"  "+localExpr("connected")+","],[4,"  "+localExpr("disconnected")],[2,"FROM bluetooth"],[3,"WHERE device = 'CAR AUDIO 7731'"]];
+      s.setSQL(sqlBase);
+      const add = el("button",{class:"addchip",type:"button",text:"+ ⑤ on 3 March 2026"});
+      add.addEventListener("click", () => {
+        s.chips([...base, s.chip(5,"on 3 March 2026")]);
+        s.setSQL([...sqlBase, [5,"  AND date("+localExpr("connected").slice(9,-1)+") = '2026-03-03'"]]);
+        s.table(["device","connected (local)","disconnected (local)"], rows(true,true), "Port Calder time", ()=>true);
+        s.say("Twenty-two fifty-eight, Marsh's phone connects to the car. Twenty-three forty-one, it disconnects. Hold on to those two times. Hale's going to want them.");
+        s.setTask("Done ✓","You read the table: one row, two times.");
+        s.ctrl.textContent=""; markDone("2.3");
+      });
+      s.ctrl.append(add);
+      s.table(["device","connected (local)","disconnected (local)"], rows(true), "Port Calder time");
+      s.say("Now the night itself. One more chip.");
+    }
+  }
+  render();
+}
+
+/* ===== Scene: Your turn (2.6) ===== */
+function sceneYourTurn(host){
+  const s = Sextant(host, {mode:"YOUR TURN · scored · 3 pts", scored:true, tables:["bluetooth","wifi","messages"]});
+  const T = [{name:"Network filter",ok:false,hint:false},{name:"Local time",ok:false,hint:false},{name:"Arrival time",ok:false,hint:false}];
+  let table = null, fmt = "raw";
+  function score(){ s.score.textContent=""; T.forEach(t => s.score.append(el("span",{class: t.ok ? (t.hint?"lost":"got") : (t.hint?"lost":""), text:t.name+(t.ok&&!t.hint?" +1":t.hint?" (hint)":" ·")})));
+    if (T.every(t=>t.ok)){ const p = T.filter(t=>!t.hint).length; setScore("turn", p); s.setTask("Done ✓","Your score here: "+p+" / 3"); markDone("2.6"); } }
+  function current(){ return T.findIndex(t=>!t.ok); }
+  s.helpBtn.addEventListener("click", () => {
+    const i = current(); if (i<0) return;
+    if (T[i].hint){ s.say("You already have the hint for this one."); return; }
+    T[i].hint = true; score();
+    s.say(["The motel's network name has the word MOTEL in it. Look at the wifi table.","The time chip has three choices. Port Calder is five hours behind world time.","Read the last_joined time in the motel row, hours and minutes."][i], false);
+  });
+  const netIn = el("input",{type:"text",placeholder:"network name","aria-label":"Network name"});
+  const fmtSel = el("select",{"aria-label":"Time format"}, el("option",{value:"raw",text:"raw number"}), el("option",{value:"utc",text:"as a date (world time)"}), el("option",{value:"local",text:"in local time"}));
+  const ans = el("input",{type:"text",placeholder:"HH:MM","aria-label":"Arrival time"});
+  function render(){
+    s.ctrl.textContent="";
+    if (!table){
+      s.setTask("Your task","When did Marsh's phone reach the motel?");
+      s.chips([]); s.setSQL([]); s.empty("Pick a table to start.");
+      s.say("Now you. Same moves, different table. When did Marsh's phone reach the motel? I'll stay quiet unless you ask.", false);
+      return;
+    }
+    s.chips([s.chip(1,"Show network, last joined"), s.chip(2,"from wifi"), s.chip(3,"where network is ", netIn), s.chip(4,"time: ", fmtSel)]);
+    updSQL();
+    const run = el("button",{class:"sxbtn",type:"button",text:"▶ Run"});
+    run.addEventListener("click", () => {
+      fmt = fmtSel.value; const v = norm(netIn.value);
+      let rows = CASE.wifi.filter(w => !v || norm(w[0])===v);
+      const h = fmt==="local" ? -5 : 0;
+      s.table(["network","last joined"], rows.map(w=>[w[0], fmt==="raw" ? String(w[2]) : tfmt(w[2],h)]), fmt==="local"?"Port Calder time":fmt==="utc"?"world time (UTC)":"raw");
+      if (!rows.length){ s.say("No network by that name. Run it with the filter empty to see all four.", false); return; }
+      if (v==="HOME-NET-5G") s.say("His home network. He last joined it at 18:31, before the night started.", false);
+      if (v==="MOTEL-GUEST"){ T[0].ok = true; if (fmt==="local") T[1].ok = true; score();
+        if (fmt==="local") s.say("Good. Now read the time and type it below.", false);
+        else s.say(fmt==="raw" ? "That's the motel. The time's still in seconds, though." : "That's the motel. Check the clock: is that world time or Port Calder time?", false); }
+    });
+    s.ctrl.append(run, el("label",{}, "Arrived at", ans), el("button",{class:"sxbtn ghost",type:"button",text:"Check",onclick:check}));
+  }
+  function check(){
+    const a = ans.value.trim().replace(/\./g,":");
+    if (/^23:58/.test(a)){ if (T[0].ok && T[1].ok){ T[2].ok = true; score(); s.say("Twenty-three fifty-eight. From the car to the motel. That's the motel, not the room: every room shares that network.", false); } else s.say("Right time, but show it with the query: filter the motel network and use local time.", false); }
+    else if (/^0?4:58/.test(a)) s.say("04:58 the next morning? That's world time. Port Calder is five hours behind.", false);
+    else s.say("Not that one. Find the motel's network and read its last-joined time.", false);
+  }
+  function updSQL(){ const tcol = fmtSel.value==="raw" ? "last_joined" : fmtSel.value==="utc" ? "datetime(last_joined + 978307200, 'unixepoch')" : "datetime(last_joined + 978307200, 'unixepoch', '-5 hours')";
+    s.setSQL([[1,"SELECT network, "+tcol],[2,"FROM wifi"],[3,"WHERE network = '"+netIn.value+"'"],[4,"-- time shown: "+fmtSel.options[fmtSel.selectedIndex].text]]); }
+  fmtSel.addEventListener("change", updSQL); netIn.addEventListener("input", updSQL);
+  s.onTable = name => { s.actTable(name); if (name!=="wifi"){ s.say(name==="bluetooth" ? "Bluetooth is devices. A motel gives you a network." : "Messages won't tell you when he arrived.", false); return; } table = name; render(); s.empty("Run the query."); };
+  score(); render();
+}
+
+/* ===== Scene: Merge (3.3) ===== */
+function sceneMerge(host){
+  const s = Sextant(host, {mode:"PRACTICE · not scored", tables:["bluetooth","alarm (EXH-05)"]});
+  const car = CASE.bluetooth.filter(r => r[0]==="CAR AUDIO 7731");
+  let phase = "run", help = 0;
+  const base = "WHERE alarm.time BETWEEN datetime(connected + 978307200, 'unixepoch') AND datetime(disconnected + 978307200, 'unixepoch')";
+  const lineIn = el("input",{type:"text",value:base,"aria-label":"Line 3 of the SQL, editable",spellcheck:"false"});
+  s.actTable("bluetooth"); s.evBtns["alarm (EXH-05)"].classList.add("act");
+  s.chips([s.chip(1,"alarm events"), s.chip(2,"lined up with bluetooth"), s.chip(3,"when the alarm time falls between connected and disconnected"), s.chip(4,"device is CAR AUDIO 7731")]);
+  function sql(editable){ s.setSQL([[1,"SELECT alarm.time, alarm.event"],[2,"FROM alarm JOIN bluetooth"],[3, editable ? lineIn : base],[4,"  AND device = 'CAR AUDIO 7731'"]]); }
+  function evalLine(txt){
+    const re = /'unixepoch'\s*(?:,\s*'([+-]?)\s*(\d+)\s*hours?')?/gi; const m = [...txt.matchAll(re)];
+    if (m.length!==2) return null;
+    return m.map(x => x[2] ? (x[1]==="+" ? +x[2] : -x[2]) : 0);
+  }
+  function runWith(a,b){
+    return CASE.alarm.filter(al => car.some(r => tfmt(r[1],a) <= al[0] && al[0] <= tfmt(r[2],b)));
+  }
+  const HINTS = ["Phones keep world time. The alarm panel keeps Port Calder time. Which side needs fixing?", ()=>lineIn, "After each 'unixepoch', insert , '-5 hours'. There are two of them."];
+  s.helpBtn.addEventListener("click", () => { if (phase!=="fix") { s.say("Run it first."); return; } help=Math.min(help+1,3); s.clearGlow(); if (help===1) s.say("Nudge: "+HINTS[0]); if (help>=2) lineIn.classList.add("glow"); if (help===2) s.say("The glowing line is the one to fix."); if (help===3) s.say("Here's the move: "+HINTS[2]); });
+  function render(){
+    s.ctrl.textContent="";
+    if (phase==="run"){
+      s.setTask("Step 1 of 2","Run the merge Sextant wrote for you.");
+      sql(false); s.empty("Press Run.");
+      s.say("The builder wrote the merge: alarm events that happened while the phone was connected to the car. Run it.");
+      s.ctrl.append(el("button",{class:"sxbtn",type:"button",text:"▶ Run",onclick:()=>{
+        s.zero(); s.say("…");
+        setTimeout(()=>{ s.say("Zero. That can't be right. …I did this on my first case. Told a detective the phone was nowhere near. I was five hours off."); phase="fix"; setTimeout(render, 50); }, 1200);
+      }}));
+    }
+    if (phase==="fix"){
+      s.setTask("Step 2 of 2","Fix the broken line by hand, then run it again.");
+      sql(true);
+      const ins = el("button",{class:"addchip",type:"button",text:"Insert: , '-5 hours'"});
+      let caret = null; lineIn.addEventListener("blur", () => caret = lineIn.selectionStart);
+      ins.addEventListener("click", () => { const p = caret ?? lineIn.value.length; lineIn.value = lineIn.value.slice(0,p)+", '-5 hours'"+lineIn.value.slice(p); lineIn.focus(); const np = p+12; lineIn.setSelectionRange(np,np); });
+      const run = el("button",{class:"sxbtn",type:"button",text:"▶ Run"});
+      run.addEventListener("click", () => {
+        const o = evalLine(lineIn.value);
+        if (!o){ s.empty("Syntax problem"); s.say("Keep both datetime(…) parts in the line. Only add to them."); return; }
+        const r = runWith(o[0], o[1]);
+        if (!r.length){ s.zero(); s.say(o.includes(5) ? "Wrong way. Port Calder is behind world time, not ahead." : (o[0]===0&&o[1]===-5) ? "Still zero. The start of the window is still on world time." : "Still zero. Both ends of the window are on world time."); return; }
+        s.table(["alarm time","event"], r.map(a=>[a[0].slice(11), a[2]]), "local time", r=>r[0]<"23:58");
+        if (r.length===5) s.say("Five rows, and one is the owner turning the alarm off. One end of the window is still on world time.");
+        if (r.length===4 && o[0]===-5 && o[1]===-5){ s.say("Four out of four. Every break-in alarm falls inside the car connection."); s.setTask("Done ✓","Both ends on one clock: 4 rows."); s.clearGlow(); markDone("3.3"); }
+      });
+      s.ctrl.append(ins, run);
+    }
+  }
+  render();
+}
+
+/* ===== Scene: Count (4.3) ===== */
+function sceneCount(host){
+  const s = Sextant(host, {mode:"SCORED · 3 pts", scored:true, tables:["bluetooth"]});
+  s.actTable("bluetooth");
+  const T = [{name:"Pick the filter",ok:false,hint:false,first:null},{name:"Edit the date",ok:false,hint:false},{name:"Read the result",ok:false,hint:false}];
+  let chip = null, start = "2026-02-02";
+  const dayOf = x => tfmt(x,-5).slice(0,10);
+  function count(pred, st){ const r = CASE.bluetooth.filter(x => pred(x[0]) && dayOf(x[1])>=st && dayOf(x[1])<="2026-03-03"); const by = {}; r.forEach(x => by[dayOf(x[1])] = (by[dayOf(x[1])]||0)+1); return {n:r.length, days:Object.keys(by).length, by, devs:[...new Set(r.map(x=>x[0]))]}; }
+  const IS = d => d==="CAR AUDIO 7731", LIKE = d => d.startsWith("CAR AUDIO");
+  function score(){ s.score.textContent=""; T.forEach(t => s.score.append(el("span",{class: t.ok ? (t.hint||t.miss?"lost":"got") : (t.hint?"lost":""), text:t.name+(t.ok&&!t.hint&&!t.miss?" +1":(t.hint||t.miss)?" (0)":" ·")})));
+    if (T.every(t=>t.ok)){ const p = T.filter(t=>!t.hint&&!t.miss).length; setScore("count",p); s.setTask("Done ✓","Your score here: "+p+" / 3"); s.say("Forty-one in a month. Twelve in the last week alone. That's a phone that knows that car well. What that means for Marsh is Hale's argument. Ours is the numbers.", false); markDone("4.3"); } }
+  s.helpBtn.addEventListener("click", () => { const i = T.findIndex(t=>!t.ok); if (i<0) return; if (T[i].hint){ s.say("You already have the hint for this one.", false); return; } T[i].hint = true; score();
+    s.say(["The question is about one car, Vance's. Which filter matches only that stereo?","Count back 7 days from 3 March, counting 3 March itself.","Add up the connections column, then count the days listed."][i], false); });
+  const dateIn = el("input",{type:"text",value:start,"aria-label":"Start date",style:"width:120px"});
+  function sql(){ const dev = chip==="is" ? "device = 'CAR AUDIO 7731'" : chip==="like" ? "device LIKE 'CAR AUDIO%'" : "device ___";
+    s.setSQL([[1,"SELECT day, COUNT(*) AS connections"],[2,"FROM bluetooth"],[3,"WHERE "+dev],[4, el("span",{},"  AND day BETWEEN '", T[0].ok ? dateIn : start, "' AND '2026-03-03'")],[5,"GROUP BY day"]]); }
+  function showCount(c, label){ s.table(["day","connections"], Object.entries(c.by).map(([d,n])=>[d,String(n)]), label+" · "+c.n+" connections on "+c.days+" days", null, 30); }
+  function render(){
+    s.ctrl.textContent="";
+    if (!T[0].ok){
+      s.setTask("Task 1 of 3","Pick the filter that answers the question about Vance's car.");
+      s.chips([s.chip(1,"Count connections per day"), s.chip(2,"from bluetooth"), s.chip(3,"device ___"), s.chip(4,"from 2 Feb to 3 Mar")]);
+      sql(); s.empty("Pick a chip for ③.");
+      s.say("Let's test that. If they met this morning, his phone shouldn't know Vance's car. Here's a count of the last 30 days: pick chip 3.", false);
+      const isB = el("button",{class:"addchip",type:"button",text:"is 'CAR AUDIO 7731'"}), likeB = el("button",{class:"addchip",type:"button",text:"starts with 'CAR AUDIO'"});
+      const pick = which => { if (T[0].first==null) T[0].first = which; chip = which;
+        const a = count(IS,start), b = count(LIKE,start);
+        s.res.textContent=""; s.res.classList.remove("red");
+        s.res.append(el("div",{class:"rhead"}, el("span",{text:"Sextant ran both"}), el("span",{text:"2 Feb – 3 Mar"})),
+          el("table",{}, el("thead",{}, el("tr",{}, el("th",{text:"filter"}), el("th",{text:"connections"}), el("th",{text:"days"}), el("th",{text:"devices"}))),
+            el("tbody",{}, el("tr",{class:which==="is"?"hl":null}, el("td",{text:"is 'CAR AUDIO 7731'"}), el("td",{text:a.n}), el("td",{text:a.days}), el("td",{text:a.devs.join(", ")})),
+                          el("tr",{class:which==="like"?"hl":null}, el("td",{text:"starts with 'CAR AUDIO'"}), el("td",{text:b.n}), el("td",{text:b.days}), el("td",{text:b.devs.join(", ")})))));
+        if (which==="like"){ s.say("Forty-four? There's a second car in here. Not today. Stick to the question: which filter is only Vance's car?", false); return; }
+        if (T[0].first==="like") T[0].miss = true;
+        T[0].ok = true; score(); s.say("Forty-one on nineteen days, that's Vance's car alone. The forty-four counts a second car, CAR AUDIO 2290. Not today.", false);
+        s.ctrl.textContent=""; s.ctrl.append(el("button",{class:"sxbtn",type:"button",text:"Next task →",onclick:render}));
+      };
+      isB.addEventListener("click", ()=>pick("is")); likeB.addEventListener("click", ()=>pick("like"));
+      s.ctrl.append(isB, likeB); return;
+    }
+    if (!T[1].ok){
+      s.setTask("Task 2 of 3","The pattern could be old. Edit the start date so the count covers only the last 7 days.");
+      s.chips([s.chip(1,"Count connections per day"), s.chip(2,"from bluetooth"), s.chip(3,"device is CAR AUDIO 7731"), s.chip(4,"from ", "the date in line 4")]);
+      sql(); showCount(count(IS, start), "30 days");
+      s.say("Edit the date in line 4 by hand, then run.", false);
+      dateIn.classList.add("glow");
+      s.ctrl.append(el("button",{class:"sxbtn",type:"button",text:"▶ Run",onclick:()=>{
+        const d = dateIn.value.trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(d)){ s.say("Keep the date in the same shape: 2026-02-25, year-month-day.", false); return; }
+        const c = count(IS, d); showCount(c, "from "+d);
+        if (d==="2026-02-25"){ T[1].ok = true; start = d; dateIn.classList.remove("glow"); score(); s.say("That's the last week.", false); s.ctrl.textContent=""; s.ctrl.append(el("button",{class:"sxbtn",type:"button",text:"Next task →",onclick:render})); }
+        else s.say("That count covers "+c.days+" days with connections, starting "+d+". The last 7 days, counting 3 March, start a little earlier or later. Try again.", false);
+      }}));
+      return;
+    }
+    if (!T[2].ok){
+      s.setTask("Task 3 of 3","Type the result.");
+      sql(); showCount(count(IS, start), "last 7 days");
+      const n = el("input",{type:"text","aria-label":"Connections",placeholder:"connections"}), d = el("input",{type:"text","aria-label":"Days",placeholder:"days"});
+      s.ctrl.append(el("label",{},"Connections",n), el("label",{},"Days",d), el("button",{class:"sxbtn",type:"button",text:"Check",onclick:()=>{
+        if (n.value.trim()==="12" && d.value.trim()==="6"){ T[2].ok = true; score(); }
+        else s.say("Add the connections column, and count the days listed.", false);
+      }}));
+      s.say("Read the table and type both numbers.", false);
+    }
+  }
+  score(); render();
+}
+
+/* ===== Scene: Conclude (4.6) ===== */
+function sceneConclude(host){
+  const s = Sextant(host, {mode:"SCORED · 4 pts", scored:true, tables:[]});
+  s.ev.hidden = true; s.root.querySelector(".sx-body").style.gridTemplateColumns = "1fr";
+  s.builder.hidden = true; s.sql.hidden = true; s.res.hidden = true;
+  const Q = [
+    {name:"Finding", ok:"b", pts:2, tries:0, hint:false, got:null, h:"A finding says what the phone did, with times and an exhibit number.",
+     text:"Which finding goes in the report?", opts:[["a","Marsh was in Vance's car during the break-in."],["b","Marsh's phone (EXH-02) was connected to CAR AUDIO 7731, the stereo of the gray sedan, from 22:58 to 23:41 on 3 March. That covers all four break-in alarms."],["c","Marsh broke into Halden & Co."],["d","Marsh's phone connected to car stereos 44 times in 30 days."]],
+     fb:{a:"That's about Marsh, not his phone.", c:"The records can't show who broke in.", d:"That's the loose filter. It counts the second car too."}},
+    {name:"Reason", ok:"a", pts:2, tries:0, hint:false, got:null, h:"Think back to lesson 3, when Hale said 'So Marsh was in the car.'",
+     text:"What's wrong with findings A and C?", opts:[["a","A phone record shows what the phone did, not who held it."],["b","Bluetooth records aren't allowed in court."],["c","The times are in world time."],["d","The car is registered to Vance."]],
+     fb:{b:"They are allowed. The problem is what they can prove.", c:"Every time here is already on Port Calder's clock.", d:"True, but it isn't what's wrong with A and C."}}
+  ];
+  let cur = 0;
+  function score(){ s.score.textContent=""; Q.forEach(q => s.score.append(el("span",{class:q.got==null?"":q.got===q.pts?"got":"lost",text:q.name+(q.got==null?" ·":" "+q.got+"/"+q.pts)}))); }
+  s.helpBtn.addEventListener("click", () => { const q = Q[cur]; if (!q || q.got!=null) return; if (q.hint){ s.say("You already have the hint for this one.", false); return; } q.hint = true; s.say(q.h, false); });
+  const form = el("div",{class:"report"}); s.main.append(form);
+  function render(){
+    form.textContent = "";
+    if (cur >= Q.length){ const p = Q.reduce((a,q)=>a+q.got,0); setScore("conclude",p);
+      const tot = Object.values(SC).reduce((a,b)=>a+(b||0),0), pass = tot>=7;
+      form.append(el("h4",{text:"CASE REPORT · SUBMITTED"}), el("div",{class:"final "+(pass?"fb ok":"fb bad")}, el("b",{text:tot+" / 10"}), pass ? "Case closed for now. Pass mark 7, sent to the learning system." : "Below the pass mark of 7. Go back to the trap and try again."));
+      s.setTask("Done ✓","Report filed."); s.say(pass ? "Good report. Hale can work with that." : "Close. Go back to the trap and try again.", false); markDone("4.6"); return; }
+    const q = Q[cur];
+    s.setTask("Question "+(cur+1)+" of 2", q.text);
+    form.append(el("h4",{text:"DIGITAL EVIDENCE UNIT · FINDINGS FORM · PCPD-26-03117"}), el("b",{text:q.text}));
+    const opts = el("div",{class:"opts"});
+    q.opts.forEach(([v,t]) => opts.append(el("label",{class:"opt"}, el("input",{type:"radio",name:"cq"+cur,value:v}), (cur===0? v.toUpperCase()+"  ":"")+t)));
+    form.append(opts, el("div",{}, el("button",{class:"btn",type:"button",text:"Submit",onclick:()=>{
+      const v = (form.querySelector("input:checked")||{}).value; if (!v) return;
+      if (v===q.ok){ q.got = Math.max(0, q.pts - (q.tries>0?1:0) - (q.hint?1:0)); score(); s.say(cur===0 ? "That's the one. What the phone did, when, and which exhibit." : "Exactly. The phone, not the person.", false); cur++; setTimeout(render, 900); }
+      else { q.tries++; s.say(q.fb[v] || "Not that one.", false); }
+    }})));
+  }
+  s.say("Last step. This goes in my report, so pick carefully.", false);
+  score(); render();
+}
+
+const SCENES = {showme:sceneShowMe, yourturn:sceneYourTurn, merge:sceneMerge, count:sceneCount, conclude:sceneConclude};
+document.querySelectorAll("[data-sx]").forEach(h => SCENES[h.dataset.sx](h));
+
+/* ---------- notes (db) ---------- */
+const noteUI = {}; let store = null;
+const nkey = id => "n" + id.replace(/\W/g,"_");
+async function saveNote(id, txt, st, nb){
+  nb.classList.toggle("has", !!txt);
+  if (store){ st.textContent = "saving…"; try { if (txt) await store.doc(nkey(id)).set({block:id, note:txt, updatedAt:new Date().toISOString()}); else await store.doc(nkey(id)).delete(); st.textContent = "saved"; } catch(e){ st.textContent = "not saved"; } }
+  else { try { const all = JSON.parse(localStorage.getItem("yofor-proto-notes")||"{}"); if (txt) all[id]=txt; else delete all[id]; localStorage.setItem("yofor-proto-notes", JSON.stringify(all)); st.textContent = "saved in this browser"; } catch(e){ st.textContent = "not saved"; } }
+}
+
+/* ---------- boot ---------- */
+const COL = {navy:"#001E30", slate:"#082836", deep:"#0A3A3E", warm:"#0E2530", redbase:"#1E0E19"};
+const GLOW = {teal:"radial-gradient(70% 60% at 50% 55%, rgba(0,163,152,.16), transparent 70%)", amber:"radial-gradient(55% 60% at 50% 48%, rgba(250,192,0,.20), transparent 72%)", red:"radial-gradient(60% 60% at 50% 50%, rgba(239,90,95,.30), transparent 72%)"};
+const BGMAP = {"1.1":"navy","1.2":"navy","1.3":"navy>slate","1.4":"slate","1.5":"slate","1.6":"slate","1.7a":"slate","1.7":"slate+teal","1.8":"slate>navy",
+ "2.0":"navy>slate","2.1":"slate","2.2":"slate","2.2b":"slate","2.3":"slate+teal","2.4":"slate","2.5":"slate>deep","2.6":"deep+teal","2.7":"deep>navy",
+ "3.0":"navy>slate","3.1":"slate","3.2":"slate","3.2b":"slate","3.3":"slate+teal","3.4":"slate","3.4b":"slate","3.5":"slate>navy","3.6":"navy","3.7":"navy>slate","3.8":"slate>navy",
+ "4.0":"navy>slate","4.1":"slate","4.2":"slate","4.3":"slate+teal","4.4":"slate","4.5":"slate>warm","4.6":"warm+amber","4.7":"warm>navy",
+ "5.1":"navy>redbase","5.2":"redbase+red","5.3":"redbase>navy","0":"navy"};
+function applyBG(){
+  document.querySelectorAll(".blk").forEach(b => {
+    const id = b.dataset.id;
+    if (id.startsWith("6.")){ b.classList.add("bg-light"); b.style.background = "#F2F2F2"; return; }
+    const spec = BGMAP[id] || "slate"; const [cols, glow] = spec.split("+"); const [c1, c2] = cols.split(">"); const A = COL[c1], Bc = COL[c2||c1];
+    const base = `linear-gradient(180deg, ${A} 0%, ${A} 15%, ${Bc} 85%, ${Bc} 100%)`;
+    b.style.background = glow ? GLOW[glow] + ", " + base : base;
+    if (spec.includes("+") || ["2.3","2.6","3.3","4.3","4.6","1.7"].includes(id)) b.classList.add("wide");
+  });
+}
+applyBG();
+buildMenu(); annotate(); gate(); route();
+document.querySelectorAll(".lnav").forEach(n => n.prepend(el("span",{class:"nl",text:"NEXT LESSON"})));
+document.getElementById("hamb").addEventListener("click", () => { if (matchMedia("(max-width:900px)").matches) document.body.classList.toggle("nav-open"); else document.body.classList.toggle("nav-closed"); });
+document.addEventListener("click", e => { if (document.body.classList.contains("nav-open") && !e.target.closest(".side") && !e.target.closest("#hamb")) document.body.classList.remove("nav-open"); });
+document.getElementById("detbtn").addEventListener("click", e => { const d = document.getElementById("details"); d.hidden = !d.hidden; e.currentTarget.setAttribute("aria-expanded", !d.hidden); e.currentTarget.textContent = d.hidden ? "DETAILS ⌄" : "DETAILS ⌃"; });
+document.getElementById("sw-learner").addEventListener("change", e => document.body.classList.toggle("learner", e.target.checked));
+document.getElementById("sw-unlock").addEventListener("change", gate);
+(async () => {
+  let db = null; try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch(e){}
+  const sm = document.getElementById("savemode");
+  if (!db){ try { const all = JSON.parse(localStorage.getItem("yofor-proto-notes")||"{}"); for (const [id,t] of Object.entries(all)) if (noteUI[id]){ noteUI[id].ta.value = t; noteUI[id].nb.classList.add("has"); } } catch(e){} sm.textContent = "Notes: saved in this browser only."; }
+  else {
+    store = db.collection("notes"); let first = true;
+    const timer = setTimeout(()=>{ if (first) sm.textContent = "Notes: slow to load, keep working."; }, 10000);
+    store.onSnapshot(snap => { if (first){ clearTimeout(timer); first=false; sm.textContent = "Notes save automatically for Claude to read."; }
+      snap.docs.forEach(d => { const v = d.data()||{}; const u = noteUI[v.block]; if (!u) return; if (document.activeElement!==u.ta) u.ta.value = v.note||""; u.nb.classList.toggle("has", !!v.note); }); },
+      () => { clearTimeout(timer); sm.textContent = "Notes: couldn't load. Reload to retry."; });
+  }
+  try { const c = window.claude && window.claude.use ? await window.claude.use("comments") : null; } catch(e){}
+})();
+</script>
+<script>
+(function(){
+  const t = document.querySelector('[data-sx=count]');
+  if (!t) { document.body.innerHTML = '<p style="color:#fff;font:16px sans-serif;padding:20px">Widget [data-sx=count] not found.</p>'; return; }
+  const wrap = document.createElement('div'); wrap.id = 'solo-wrap';
+  document.body.appendChild(wrap); wrap.appendChild(t);
+  for (const n of [...document.body.children]) if (n !== wrap && n.tagName !== 'SCRIPT') n.style.display = 'none';
+  document.body.className = ''; window.scrollTo(0, 0);
+  // height for Rise (code block with autoResize on)
+  const post = () => { try { parent.postMessage({type: 'resize', height: Math.ceil(wrap.getBoundingClientRect().height)}, '*'); } catch (e) {} };
+  new ResizeObserver(post).observe(wrap); addEventListener('load', post); post();
+  // completion hook: the prototype calls markDone(id) when a task is finished
+  if (typeof markDone === 'function') { const md = markDone; window.markDone = markDone = function(id){ const r = md.apply(this, arguments); try { parent.postMessage({type: 'complete', widget: 'sextant-count', id}, '*'); } catch (e) {} return r; }; }
+})();
+</script><style>.sx-el .av{background:url(../frames/elena-face.jpg) center/cover!important;color:transparent!important;width:44px;height:44px;flex-basis:44px}</style>
+<script>
+/* Hosted version (Embed block): the five Sextant blocks share one case score through the browser, same origin. */
+(function(){ var K='halden-case-score-v1';
+  try { var saved = JSON.parse(localStorage.getItem(K)||'{}'); if (typeof SC==='object') Object.keys(saved).forEach(function(k){ if (SC[k]==null) SC[k]=saved[k]; }); } catch(e){}
+  if (typeof setScore==='function'){ var orig=setScore; window.setScore=function(k,v){ orig(k,v); try{ var s=JSON.parse(localStorage.getItem(K)||'{}'); s[k]=v; localStorage.setItem(K,JSON.stringify(s)); }catch(e){} }; }
+})();
+</script>

@@ -1,0 +1,72 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>See the five hours · Halden & Co.</title><link rel="stylesheet" href="../shared/halden.css">
+<style>
+body{background:radial-gradient(60% 60% at 50% 45%,rgba(239,90,95,.10),transparent 70%),var(--slate)}
+.stage{position:relative;border-radius:8px;overflow:hidden;background:linear-gradient(rgba(4,18,27,.80),rgba(4,18,27,.92)),url(../frames/sidedoor.jpg) center/cover;padding:18px 12px 10px}
+svg.tl{width:100%;height:auto;display:block;touch-action:none}
+.axis{stroke:rgba(255,255,255,.3)}.tk{stroke:rgba(255,255,255,.3)}.hl{fill:#9DB0BC;font:500 12px "Roboto Mono",monospace}
+.al{stroke:#EF5A5F;stroke-width:4;stroke-linecap:round}.al.sys{stroke:#6F8794}
+.al-l{fill:#FF8A8F;font:600 12px Roboto,sans-serif}.sys-l{fill:#9DB0BC;font:500 11px Roboto,sans-serif}
+.bar{fill:#3D5A6A;cursor:grab;transition:fill .2s}.bar.ok{fill:#00A398}.bar:focus{outline:none}.bar.focus{stroke:#FAC000;stroke-width:3}
+.bar-l{fill:#E8EEF2;font:700 12.5px Roboto,sans-serif;pointer-events:none}
+.readout{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font:700 14px var(--fm)}
+.readout .in{color:var(--red)}.readout .in.ok{color:var(--teal-hi)}
+.nudge{display:flex;gap:8px;flex-wrap:wrap}
+.q{background:var(--card);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.q .qt{font:600 18px/1.4 var(--fb)}
+.opt{display:flex;gap:12px;align-items:flex-start;border-top:1px solid var(--line);padding:11px 4px;cursor:pointer}
+.opt input{margin-top:4px;accent-color:var(--teal);width:18px;height:18px}
+.fb{border-radius:4px;padding:12px 14px}.fb.ok{background:rgba(111,211,156,.14)}.fb.bad{background:rgba(239,90,95,.16)}
+</style></head><body><div class="wrap">
+<div><div class="kicker">After the trap · see the five hours</div><h1 class="title">Why did the first merge find nothing?</h1>
+<p class="task">The alarm log keeps Port Calder time. The phone keeps world time. Drag the car bar along the night until it covers the break-in. (Keyboard: focus the bar, then arrow keys.)</p></div>
+<div class="stage"><svg class="tl" id="tl" viewBox="0 0 960 230" role="img" aria-label="Timeline of the night with the alarm events and the phone's car connection"></svg></div>
+<div class="readout" aria-live="polite"><span id="shift">Car bar moved: 0 h 00</span><span class="in" id="inside">Break-in alarms inside the car window: 0 of 4</span></div>
+<div class="nudge"><button class="btn ghost" type="button" id="m1">− 1 hour</button><button class="btn ghost" type="button" id="p1">+ 1 hour</button><button class="btn ghost" type="button" id="rs">Reset</button></div>
+<div class="q" id="q" hidden><div class="qt">So why did the first merge find nothing?</div>
+  <label class="opt"><input type="radio" name="q" value="a">The alarm log is in local time and the phone in world time, five hours apart</label>
+  <label class="opt"><input type="radio" name="q" value="b">The phone wasn't in the car</label>
+  <label class="opt"><input type="radio" name="q" value="c">The alarm panel's clock was wrong</label>
+  <label class="opt"><input type="radio" name="q" value="d">Bluetooth doesn't record at night</label>
+  <div><button class="btn" type="button" id="sub">Submit</button></div><div class="fb" id="fb" hidden></div></div>
+<div class="elena" id="elena"><span class="av" aria-hidden="true"></span><div><small>ELENA</small><p>This is how it looked when I ran it on my first case. Two clocks, never touching.</p></div></div>
+</div>
+<script src="../shared/halden.js"></script>
+<script>
+// axis: Port Calder time 21:00 (Tue 3 Mar) → 05:00 (Wed 4 Mar), in minutes from 21:00
+const X0=40, W=880, SPAN=480, x=m=>X0+m/SPAN*W, mm=(h,mi,s=0)=>((h<21?h+24:h)-21)*60+mi+s/60;
+const ALARMS=[[mm(21,14,55),"Armed",1],[mm(23,19,42),"Side door",0],[mm(23,20,10),"Motion",0],[mm(23,21,5),"Glass break",0],[mm(23,26,30),"Side door",0],[mm(23,58,12),"Disarmed",1]];
+const CAR=[mm(3,58,14),mm(4,41,37)]; // as stored: world time, read as if local
+let shift=0; const svg=document.getElementById("tl"); let solved=false;
+let h='<line class="axis" x1="40" y1="170" x2="920" y2="170"/>';
+for(let i=0;i<=8;i++){ const hh=(21+i)%24; h+=`<line class="tk" x1="${x(i*60)}" y1="164" x2="${x(i*60)}" y2="176"/><text class="hl" x="${x(i*60)}" y="196" text-anchor="middle">${String(hh).padStart(2,"0")}:00</text>`; }
+ALARMS.forEach(([m,l,sys])=>{ h+=`<line class="al${sys?" sys":""}" x1="${x(m)}" y1="150" x2="${x(m)}" y2="186"/>`; if(sys) h+=`<text class="sys-l" x="${x(m)}" y="222" text-anchor="middle">${l}</text>`; });
+h+=`<text class="al-l" x="${x(mm(23,23))}" y="140" text-anchor="middle">4 break-in alarms</text>`;
+h+='<g id="car" tabindex="0" role="slider" aria-label="Car connection bar" aria-valuemin="-480" aria-valuemax="120" aria-valuenow="0"><rect class="bar" id="barR" x="0" y="64" height="34" rx="5"/><text class="bar-l" id="barL" y="86"></text></g>';
+svg.innerHTML=h;
+const car=document.getElementById("car"), R=document.getElementById("barR"), L=document.getElementById("barL");
+function hm(m){ m=((m%1440)+1440)%1440; const t=(m+21*60)%1440; return String(Math.floor(t/60)).padStart(2,"0")+":"+String(Math.floor(t%60)).padStart(2,"0"); }
+function draw(){
+  const a=CAR[0]+shift, b=CAR[1]+shift; R.setAttribute("x",x(a)); R.setAttribute("width",x(b)-x(a));
+  const n=ALARMS.filter(([m,,sys])=>!sys && m>=a && m<=b).length, ok=n===4;
+  R.classList.toggle("ok",ok);
+  L.textContent = ok ? "Phone in the car · "+hm(a)+"–"+hm(b) : "Phone in the car · "+hm(a)+"–"+hm(b)+(shift===0?" (as stored)":"");
+  const lx=Math.min(Math.max(x(a),X0),920-260); L.setAttribute("x",lx);
+  const sh=Math.round(shift), s=sh<0?"−":"+"; document.getElementById("shift").textContent="Car bar moved: "+(sh===0?"0 h 00":s+Math.floor(Math.abs(sh)/60)+" h "+String(Math.abs(sh)%60).padStart(2,"0"));
+  const ins=document.getElementById("inside"); ins.textContent="Break-in alarms inside the car window: "+n+" of 4"; ins.classList.toggle("ok",ok);
+  car.setAttribute("aria-valuenow",sh); car.setAttribute("aria-valuetext","moved "+sh+" minutes, "+n+" of 4 alarms inside");
+  if(ok && !solved){ solved=true; HALDEN.say(document.getElementById("elena"),"Five hours. Same night, one clock, and all four alarms sit inside the car connection."); document.getElementById("q").hidden=false; }
+}
+function setShift(v){ shift=Math.max(-480,Math.min(120,v)); if(Math.abs(shift+300)<=30) shift=-300; draw(); }
+let drag=null;
+car.addEventListener("pointerdown",e=>{ const pt=svg.createSVGPoint(); pt.x=e.clientX; const p=pt.matrixTransform(svg.getScreenCTM().inverse()); drag={x0:p.x,s0:shift}; car.setPointerCapture(e.pointerId); });
+car.addEventListener("pointermove",e=>{ if(!drag) return; const pt=svg.createSVGPoint(); pt.x=e.clientX; const p=pt.matrixTransform(svg.getScreenCTM().inverse()); setShift(Math.round((drag.s0+(p.x-drag.x0)/W*SPAN)/5)*5); });
+car.addEventListener("pointerup",()=>drag=null);
+car.addEventListener("keydown",e=>{ const st=e.shiftKey?60:15; if(e.key==="ArrowLeft"){e.preventDefault();setShift(shift-st);} if(e.key==="ArrowRight"){e.preventDefault();setShift(shift+st);} });
+car.addEventListener("focus",()=>R.classList.add("focus")); car.addEventListener("blur",()=>R.classList.remove("focus"));
+document.getElementById("m1").onclick=()=>setShift(shift-60); document.getElementById("p1").onclick=()=>setShift(shift+60); document.getElementById("rs").onclick=()=>setShift(0);
+document.getElementById("sub").onclick=()=>{ const v=(document.querySelector("input[name=q]:checked")||{}).value; if(!v) return; const fb=document.getElementById("fb"); fb.hidden=false;
+  if(v==="a"){ fb.className="fb ok"; fb.textContent="Two clocks, five hours apart. Put every source on one clock before you merge."; HALDEN.complete("halden-five-hours"); }
+  else { fb.className="fb bad"; fb.textContent="The fix was five hours. Which two clocks were five hours apart?"; } };
+draw();
+</script></body></html>

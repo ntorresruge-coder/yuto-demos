@@ -1,0 +1,75 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>The evidence board · Halden & Co.</title><link rel="stylesheet" href="../shared/halden.css">
+<style>
+.board{position:relative;border-radius:6px;padding:clamp(14px,2.5vw,26px);background:radial-gradient(55% 60% at 75% 0%,rgba(250,192,0,.16),transparent 70%),radial-gradient(120% 120% at 50% 50%,#0D2B3A,#06192A);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),inset 0 0 80px rgba(0,0,0,.5)}
+.q{position:relative;z-index:2;margin:0 auto 22px;max-width:520px;background:var(--paper);color:var(--paper-ink);border-radius:2px;padding:14px 18px 12px;text-align:center;box-shadow:0 10px 24px rgba(0,0,0,.45);transform:rotate(-.6deg)}
+.q small{font:700 10.5px var(--fb);letter-spacing:.14em;color:#8B2E31}
+.q b{display:block;font:800 clamp(17px,2.2vw,21px)/1.25 var(--fd);margin:4px 0}
+.q span{font-size:13px;color:#5A6470}
+.pins{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,2vw,22px)}
+@media (max-width:620px){.pins{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pin{position:relative;border:0;padding:8px 8px 10px;background:#F4F1E8;color:var(--paper-ink);border-radius:2px;cursor:pointer;text-align:left;box-shadow:0 10px 22px rgba(0,0,0,.5);transition:transform .15s}
+.pin:nth-child(odd){transform:rotate(-1.4deg)}.pin:nth-child(even){transform:rotate(1.2deg)}
+.pin:hover,.pin[aria-expanded="true"]{transform:rotate(0) scale(1.03)}
+.pin::before{content:"";position:absolute;top:-7px;left:50%;width:14px;height:14px;border-radius:50%;background:#C23B3B;transform:translateX(-50%);box-shadow:0 3px 4px rgba(0,0,0,.5)}
+.pin .ph{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#123B52}
+.pin .cap{display:block;font:700 12.5px/1.3 var(--fb);margin-top:7px}
+.pin .sub{display:block;font:500 11px var(--fm);color:#5A6470;margin-top:2px}
+.pin .seen{position:absolute;right:6px;top:6px;width:22px;height:22px;border-radius:50%;background:var(--teal);color:#00141F;display:grid;place-items:center;font-weight:800;font-size:13px;opacity:0;transition:opacity .2s}
+.pin.is-seen .seen{opacity:1}
+.doc{aspect-ratio:4/3;background:#fff;display:flex;flex-direction:column;gap:5px;padding:10px;font:600 10px var(--fm);color:#5A6470}
+.doc b{font:800 11px var(--fb);color:#1E2328;letter-spacing:.06em}.doc i{display:block;height:5px;background:#DDE2E5;border-radius:2px}.doc .stamp{margin-top:auto;align-self:flex-end;border:2px solid #C23B3B;color:#C23B3B;padding:1px 6px;transform:rotate(-8deg);font-weight:800}
+.screen{aspect-ratio:4/3;background:#05131B;border:6px solid #1B2B33;border-radius:6px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;font:700 11px var(--fm);color:#7FE7DC;text-align:center}
+.screen b{font-size:clamp(12px,1.5vw,15px);color:#BFFAF3}
+svg.strings{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+svg.strings line{stroke:#C23B3B;stroke-width:2;opacity:.85}
+.detail{background:var(--card);border-radius:6px;padding:16px 18px;display:grid;grid-template-columns:180px minmax(0,1fr);gap:16px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+@media (max-width:620px){.detail{grid-template-columns:1fr}}
+.detail img{width:100%;border-radius:4px;aspect-ratio:4/3;object-fit:cover}
+.detail h3{font-size:18px;font-weight:800;margin-bottom:6px}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.count{font:700 13px var(--fm);color:var(--muted)}
+</style></head><body><div class="wrap">
+<div><div class="kicker">Case PCPD-26-03117 · the evidence board</div><h1 class="title">Everything we have, before we open the phone</h1><p class="task">Open each pin. The red strings lead to your question.</p></div>
+<div class="board" id="board">
+  <svg class="strings" id="strings" aria-hidden="true"></svg>
+  <div class="q" id="q"><small>YOUR QUESTION</small><b>Has Marsh's phone been in Vance's car?</b><span>A phone can't tell us who held it. It can tell us where it's been.</span></div>
+  <div class="pins" id="pins"></div>
+</div>
+<div class="detail" id="detail" hidden aria-live="polite"><div id="d-img"></div><div><h3 id="d-t"></h3><p id="d-x"></p></div></div>
+<div class="foot"><span class="count" id="count"></span></div>
+<div class="elena" id="elena"><span class="av" aria-hidden="true"></span><div><small>ELENA</small><p>Start with the man who opened the door. Then the car.</p></div></div>
+</div>
+<script src="../shared/halden.js"></script>
+<script>
+const P=[
+ {id:"marsh",img:"marsh-booking",cap:"Leon Marsh, 27",sub:"opened the door",str:1,t:"Leon Marsh, 27",x:"He opened the door of Room 112. His phone was not wiped. In the interview on Wednesday 4 March he said: \"I don't even know the guy. Met him this morning,\" and \"I've never been in his car.\""},
+ {id:"vance",img:"vance-booking",cap:"Dario Vance, 34",sub:"owns the car",t:"Dario Vance, 34",x:"The gray sedan is registered to him. He reset his phone before police came in, and says it was slow."},
+ {id:"sedan",img:"sedan",cap:"The gray sedan",sub:"half a plate",str:1,t:"The gray sedan",x:"Seen at the store on Tuesday night: a gray sedan, half a plate, no faces. At dawn it was still parked outside Room 112."},
+ {id:"stereo",doc:"screen",cap:"EXH-03 · the stereo",sub:"car search, 4 Mar",str:1,t:"EXH-03 · the car's stereo",x:"The sedan's stereo calls itself CAR AUDIO 7731. Its list of paired phones shows \"Leon's iPhone\". Remember that name: Marsh's phone stores it too."},
+ {id:"warrant",doc:"warrant",cap:"The warrant",sub:"PCPD-SW-26-0412",t:"The warrant",x:"PCPD-SW-26-0412, signed on Wednesday 4 March at 16:30. We're allowed to search Marsh's phone."},
+ {id:"phone",img:"bag-phone",cap:"EXH-02 · Marsh's phone",sub:"bagged, powered",str:1,t:"EXH-02 · Marsh's iPhone",x:"Bagged and kept powered. The lab copied it on Thursday 5 March at 09:30, and a fingerprint (hash) proves the copy matches. Device name, SIM, Apple Account and Bluetooth address all match: it's Marsh's phone."},
+ {id:"motel",img:"motel",cap:"Calder Pines motel",sub:"Route 9",t:"Calder Pines, Route 9",x:"\"Two guys paid cash last night.\" The gray car was parked outside Room 112. Every room shares one Wi-Fi network, called MOTEL-GUEST."},
+ {id:"wipe",img:"wipe",cap:"The wiped phone",sub:"Vance's",t:"Vance's phone",x:"Found on the setup screen: somebody had just wiped it. There's nothing left to read on it, so this case rests on Marsh's phone."}
+];
+const LINES={marsh:"He says he's never been in that car. His phone can check that.",vance:"Wiping the phone tells us something. It doesn't tell us where it's been.",sedan:"The car's real name, for a phone, isn't the plate. It's the stereo.",stereo:"CAR AUDIO 7731. That's what we'll look for.",warrant:"Signed. We're clear to search.",phone:"Copy verified. This is the one we read.",motel:"MOTEL-GUEST. Keep that name too.",wipe:"Nothing to read there. Good thing Marsh didn't wipe his."};
+const pins=document.getElementById("pins"), seen=new Set();
+function docHTML(k){ if(k==="warrant") return '<span class="doc" aria-hidden="true"><b>SEARCH WARRANT</b><span>PCPD-SW-26-0412</span><i></i><i></i><i style="width:70%"></i><i></i><span class="stamp">SIGNED</span></span>';
+  return '<span class="screen" aria-hidden="true">PAIRED DEVICES<b>CAR AUDIO 7731</b>Leon\'s iPhone</span>'; }
+P.forEach(p=>{ const b=document.createElement("button"); b.className="pin"; b.type="button"; b.id="pin-"+p.id; b.setAttribute("aria-expanded","false"); b.setAttribute("aria-controls","detail");
+  b.innerHTML=(p.img?'<img class="ph" src="../frames/'+p.img+'.jpg" alt="">':docHTML(p.doc))+'<span class="cap"></span><span class="sub"></span><span class="seen" aria-hidden="true">✓</span>';
+  b.querySelector(".cap").textContent=p.cap; b.querySelector(".sub").textContent=p.sub; b.addEventListener("click",()=>openPin(p,b)); pins.append(b); });
+function openPin(p,b){
+  document.querySelectorAll(".pin").forEach(x=>x.setAttribute("aria-expanded",x===b)); b.classList.add("is-seen"); seen.add(p.id);
+  const d=document.getElementById("detail"); d.hidden=false;
+  document.getElementById("d-img").innerHTML=p.img?'<img src="../frames/'+p.img+'.jpg" alt="">':docHTML(p.doc);
+  document.getElementById("d-t").textContent=p.t; document.getElementById("d-x").textContent=p.x;
+  const all=seen.size===P.length; HALDEN.say(document.getElementById("elena"), all?"That's the whole board. One question left, and one phone that can answer it. Let's open it.":LINES[p.id]);
+  count(); if(all) HALDEN.complete("halden-board"); }
+function count(){ document.getElementById("count").textContent=seen.size+" of "+P.length+" pins opened"; }
+function strings(){ const s=document.getElementById("strings"), bd=document.getElementById("board").getBoundingClientRect(), q=document.getElementById("q").getBoundingClientRect();
+  const x0=q.left+q.width/2-bd.left, y0=q.bottom-bd.top-4; let h="";
+  P.filter(p=>p.str).forEach(p=>{ const r=document.getElementById("pin-"+p.id).getBoundingClientRect(); h+=`<line x1="${x0}" y1="${y0}" x2="${r.left+r.width/2-bd.left}" y2="${r.top-bd.top+2}"/>`; });
+  s.innerHTML=h; }
+count(); strings(); addEventListener("resize",strings); addEventListener("load",strings);
+</script></body></html>
