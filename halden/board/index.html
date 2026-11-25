@@ -6,7 +6,7 @@
 .q small{font:700 10.5px var(--fb);letter-spacing:.14em;color:#8B2E31}
 .q b{display:block;font:800 clamp(17px,2.2vw,21px)/1.25 var(--fd);margin:4px 0}
 .q span{font-size:13px;color:#5A6470}
-.pins{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,2vw,22px)}
+.pins{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 @media (max-width:620px){.pins{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .pin{position:relative;border:0;padding:8px 8px 10px;background:#F4F1E8;color:var(--paper-ink);border-radius:2px;cursor:pointer;text-align:left;box-shadow:0 10px 22px rgba(0,0,0,.5);transition:transform .15s}
 .pin:nth-child(odd){transform:rotate(-1.4deg)}.pin:nth-child(even){transform:rotate(1.2deg)}
@@ -23,24 +23,25 @@
 .screen b{font-size:clamp(12px,1.5vw,15px);color:#BFFAF3}
 svg.strings{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
 svg.strings line{stroke:#C23B3B;stroke-width:2;opacity:.85}
-.detail{background:var(--card);border-radius:6px;padding:16px 18px;display:grid;grid-template-columns:180px minmax(0,1fr);gap:16px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.detail{background:var(--card);border-radius:6px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+#d-img:empty{display:none}
 @media (max-width:620px){.detail{grid-template-columns:1fr}}
 .detail img{width:100%;border-radius:4px;aspect-ratio:4/3;object-fit:cover}
 .detail h3{font-size:18px;font-weight:800;margin-bottom:6px}
 .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .count{font:700 13px var(--fm);color:var(--muted)}
-</style></head><body><div class="wrap">
+</style></head><body><div class="wrap" data-stage>
 <div><div class="kicker">Case PCPD-26-03117 · the evidence board</div><h1 class="title">Everything we have, before we open the phone</h1><p class="task">Open each pin. The red strings lead to your question.</p></div>
-<div class="board" id="board">
+<div class="cols" style="grid-template-columns:minmax(0,1.8fr) minmax(0,1fr)"><div class="board" id="board">
   <svg class="strings" id="strings" aria-hidden="true"></svg>
   <div class="q" id="q"><small>YOUR QUESTION</small><b>Has Marsh's phone been in Vance's car?</b><span>A phone can't tell us who held it. It can tell us where it's been.</span></div>
   <div class="pins" id="pins"></div>
 </div>
-<div class="detail" id="detail" hidden aria-live="polite"><div id="d-img"></div><div><h3 id="d-t"></h3><p id="d-x"></p></div></div>
+<div class="side" style="display:flex;flex-direction:column;gap:14px"><div class="detail" id="detail" aria-live="polite"><div id="d-img"></div><div><h3 id="d-t">Open a pin</h3><p id="d-x">Each pin on the board holds one piece of the case. Read them all before we open the phone.</p></div></div>
 <div class="foot"><span class="count" id="count"></span></div>
 <div class="elena" id="elena"><span class="av" aria-hidden="true"></span><div><small>ELENA</small><p>Start with the man who opened the door. Then the car.</p></div></div>
-</div>
-<script src="../shared/halden.js"></script>
+</div></div></div>
+<script src="../shared/halden.js"></script><script src="../shared/fit.js"></script>
 <script>
 const P=[
  {id:"marsh",img:"marsh-booking",cap:"Leon Marsh, 27",sub:"opened the door",str:1,t:"Leon Marsh, 27",x:"He opened the door of Room 112. His phone was not wiped. In the interview on Wednesday 4 March he said: \"I don't even know the guy. Met him this morning,\" and \"I've never been in his car.\""},
@@ -61,7 +62,7 @@ P.forEach(p=>{ const b=document.createElement("button"); b.className="pin"; b.ty
   b.querySelector(".cap").textContent=p.cap; b.querySelector(".sub").textContent=p.sub; b.addEventListener("click",()=>openPin(p,b)); pins.append(b); });
 function openPin(p,b){
   document.querySelectorAll(".pin").forEach(x=>x.setAttribute("aria-expanded",x===b)); b.classList.add("is-seen"); seen.add(p.id);
-  const d=document.getElementById("detail"); d.hidden=false;
+  const d=document.getElementById("detail");
   document.getElementById("d-img").innerHTML=p.img?'<img src="../frames/'+p.img+'.jpg" alt="">':docHTML(p.doc);
   document.getElementById("d-t").textContent=p.t; document.getElementById("d-x").textContent=p.x;
   const all=seen.size===P.length; HALDEN.say(document.getElementById("elena"), all?"That's the whole board. One question left, and one phone that can answer it. Let's open it.":LINES[p.id]);

@@ -2,7 +2,7 @@
 <title>See the five hours · Halden & Co.</title><link rel="stylesheet" href="../shared/halden.css">
 <style>
 body{background:radial-gradient(60% 60% at 50% 45%,rgba(239,90,95,.10),transparent 70%),var(--slate)}
-.stage{position:relative;border-radius:8px;overflow:hidden;background:linear-gradient(rgba(4,18,27,.80),rgba(4,18,27,.92)),url(../frames/sidedoor.jpg) center/cover;padding:18px 12px 10px}
+.stage{position:relative;max-width:1100px;width:100%;margin:0 auto;border-radius:8px;overflow:hidden;background:linear-gradient(rgba(4,18,27,.80),rgba(4,18,27,.92)),url(../frames/sidedoor.jpg) center/cover;padding:18px 12px 10px}
 svg.tl{width:100%;height:auto;display:block;touch-action:none}
 .axis{stroke:rgba(255,255,255,.3)}.tk{stroke:rgba(255,255,255,.3)}.hl{fill:#9DB0BC;font:500 12px "Roboto Mono",monospace}
 .al{stroke:#EF5A5F;stroke-width:4;stroke-linecap:round}.al.sys{stroke:#6F8794}
@@ -17,21 +17,21 @@ svg.tl{width:100%;height:auto;display:block;touch-action:none}
 .opt{display:flex;gap:12px;align-items:flex-start;border-top:1px solid var(--line);padding:11px 4px;cursor:pointer}
 .opt input{margin-top:4px;accent-color:var(--teal);width:18px;height:18px}
 .fb{border-radius:4px;padding:12px 14px}.fb.ok{background:rgba(111,211,156,.14)}.fb.bad{background:rgba(239,90,95,.16)}
-</style></head><body><div class="wrap">
+</style></head><body><div class="wrap" data-stage>
 <div><div class="kicker">After the trap · see the five hours</div><h1 class="title">Why did the first merge find nothing?</h1>
 <p class="task">The alarm log keeps Port Calder time. The phone keeps world time. Drag the car bar along the night until it covers the break-in. (Keyboard: focus the bar, then arrow keys.)</p></div>
 <div class="stage"><svg class="tl" id="tl" viewBox="0 0 960 230" role="img" aria-label="Timeline of the night with the alarm events and the phone's car connection"></svg></div>
 <div class="readout" aria-live="polite"><span id="shift">Car bar moved: 0 h 00</span><span class="in" id="inside">Break-in alarms inside the car window: 0 of 4</span></div>
 <div class="nudge"><button class="btn ghost" type="button" id="m1">− 1 hour</button><button class="btn ghost" type="button" id="p1">+ 1 hour</button><button class="btn ghost" type="button" id="rs">Reset</button></div>
-<div class="q" id="q" hidden><div class="qt">So why did the first merge find nothing?</div>
+<div class="q" id="q" hidden style="display:grid;grid-template-columns:1fr 1fr;column-gap:20px"><div class="qt" style="grid-column:1/-1">So why did the first merge find nothing?</div>
   <label class="opt"><input type="radio" name="q" value="a">The alarm log is in local time and the phone in world time, five hours apart</label>
   <label class="opt"><input type="radio" name="q" value="b">The phone wasn't in the car</label>
   <label class="opt"><input type="radio" name="q" value="c">The alarm panel's clock was wrong</label>
   <label class="opt"><input type="radio" name="q" value="d">Bluetooth doesn't record at night</label>
-  <div><button class="btn" type="button" id="sub">Submit</button></div><div class="fb" id="fb" hidden></div></div>
+  <div style="grid-column:1/-1;display:flex;gap:14px;align-items:center;margin-top:6px"><button class="btn" type="button" id="sub">Submit</button><div class="fb" id="fb" hidden style="flex:1"></div></div></div>
 <div class="elena" id="elena"><span class="av" aria-hidden="true"></span><div><small>ELENA</small><p>This is how it looked when I ran it on my first case. Two clocks, never touching.</p></div></div>
 </div>
-<script src="../shared/halden.js"></script>
+<script src="../shared/halden.js"></script><script src="../shared/fit.js"></script>
 <script>
 // axis: Port Calder time 21:00 (Tue 3 Mar) → 05:00 (Wed 4 Mar), in minutes from 21:00
 const X0=40, W=880, SPAN=480, x=m=>X0+m/SPAN*W, mm=(h,mi,s=0)=>((h<21?h+24:h)-21)*60+mi+s/60;
@@ -55,7 +55,7 @@ function draw(){
   const sh=Math.round(shift), s=sh<0?"−":"+"; document.getElementById("shift").textContent="Car bar moved: "+(sh===0?"0 h 00":s+Math.floor(Math.abs(sh)/60)+" h "+String(Math.abs(sh)%60).padStart(2,"0"));
   const ins=document.getElementById("inside"); ins.textContent="Break-in alarms inside the car window: "+n+" of 4"; ins.classList.toggle("ok",ok);
   car.setAttribute("aria-valuenow",sh); car.setAttribute("aria-valuetext","moved "+sh+" minutes, "+n+" of 4 alarms inside");
-  if(ok && !solved){ solved=true; HALDEN.say(document.getElementById("elena"),"Five hours. Same night, one clock, and all four alarms sit inside the car connection."); document.getElementById("q").hidden=false; }
+  if(ok && !solved){ solved=true; HALDEN.say(document.getElementById("elena"),"Five hours. Same night, one clock, and all four alarms sit inside the car connection."); document.getElementById("q").hidden=false; document.querySelector(".nudge").hidden=true; }
 }
 function setShift(v){ shift=Math.max(-480,Math.min(120,v)); if(Math.abs(shift+300)<=30) shift=-300; draw(); }
 let drag=null;

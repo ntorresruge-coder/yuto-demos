@@ -8,7 +8,7 @@
 .clocks{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(10px,3vw,30px);align-items:center}
 .clk{background:var(--card);border-radius:10px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
 .clk.here{box-shadow:0 0 0 2px var(--amber),0 0 40px rgba(250,192,0,.2)}
-.clk svg{width:min(150px,30vw);height:auto}
+.clk svg{width:min(170px,30vw);height:auto}
 .clk .nm{font:700 11px var(--fb);letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
 .clk .dg{font:700 clamp(22px,3.6vw,30px) var(--fm);font-variant-numeric:tabular-nums}
 .clk.here .dg{color:var(--amber)}
@@ -24,22 +24,22 @@ input[type=range]{width:100%;accent-color:var(--teal);height:28px}
 .marks .tg{color:var(--amber);font-weight:700;top:15px}
 .found{background:rgba(0,163,152,.14);border-left:4px solid var(--teal);border-radius:4px;padding:12px 14px}
 @media (max-width:560px){.clocks{grid-template-columns:1fr}.gap{padding:4px 0}}
-</style></head><body><div class="wrap">
+</style></head><body><div class="wrap" data-stage>
 <div><div class="kicker">Skill 1 · the phone's clock</div><h1 class="title">794289494 is a time. When?</h1>
 <p class="task">Phones don't store dates. They count seconds from midnight on 1 January 2001, world time. Drag the slider until the phone's number reads <b style="color:var(--teal-hi);font-family:var(--fm)">794289494</b>.</p></div>
-<div class="raw"><div><small>WHAT THE PHONE STORES</small><br><b id="raw">794278800</b></div><span class="t">seconds since 1 Jan 2001, 00:00 UTC</span></div>
-<div class="clocks">
+<div class="cols" style="grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)"><div style="display:flex;flex-direction:column;gap:16px"><div class="raw"><div><small>WHAT THE PHONE STORES</small><br><b id="raw">794278800</b></div><span class="t">seconds since 1 Jan 2001, 00:00 UTC</span></div>
+</div><div class="clocks">
   <div class="clk" id="c-utc"><span class="nm">World time (UTC)</span><svg viewBox="0 0 120 120" aria-hidden="true"></svg><span class="dg"></span><span class="dy"></span></div>
   <div class="gap">−5 h<small>Port Calder is behind</small></div>
   <div class="clk here" id="c-loc"><span class="nm">Port Calder</span><svg viewBox="0 0 120 120" aria-hidden="true"></svg><span class="dg"></span><span class="dy"></span></div>
 </div>
-<div class="ctl"><label for="sl">Move through Tuesday night, 3 March (Port Calder time)</label>
+</div><div class="ctl"><label for="sl">Move through Tuesday night, 3 March (Port Calder time)</label>
 <input type="range" id="sl" min="0" max="300" step="1" value="0" aria-describedby="raw">
 <div class="marks" id="marks"></div></div>
 <div class="found" id="found" hidden aria-live="polite"><b>Found it: 22:58:14 in Port Calder, Tuesday 3 March.</b> Same moment as 03:58:14 world time on Wednesday. Every time a phone stores needs that fix: minus five hours.</div>
 <div class="elena" id="elena"><span class="av" aria-hidden="true"></span><div><small>ELENA</small><p>Watch both clocks. They move together, always five hours apart.</p></div></div>
 </div>
-<script src="../shared/halden.js"></script>
+<script src="../shared/halden.js"></script><script src="../shared/fit.js"></script>
 <script>
 const EPOCH=978307200, START=794278800 /* 20:00:00 Port Calder, Tue 3 Mar */, TARGET=794289494;
 const sl=document.getElementById("sl"), raw=document.getElementById("raw"); let done=false;

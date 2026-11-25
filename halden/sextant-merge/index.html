@@ -1312,3 +1312,4 @@ document.getElementById("sw-unlock").addEventListener("change", gate);
   if (typeof setScore==='function'){ var orig=setScore; window.setScore=function(k,v){ orig(k,v); try{ var s=JSON.parse(localStorage.getItem(K)||'{}'); s[k]=v; localStorage.setItem(K,JSON.stringify(s)); }catch(e){} }; }
 })();
 </script>
+<script src="../shared/fit.js"></script>

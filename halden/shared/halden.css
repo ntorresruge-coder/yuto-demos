@@ -23,3 +23,7 @@ button{font:inherit;color:inherit}
 .elena p{margin:0;font-size:15.5px}
 .done{color:var(--teal-hi);font-weight:700}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+html.fitted,html.fitted body{overflow:hidden;height:100%}
+html.fitted .wrap{padding:28px 36px;gap:18px}
+.cols{display:grid;gap:22px;align-items:start}
+@media (max-width:639px){.cols{grid-template-columns:1fr!important}}
